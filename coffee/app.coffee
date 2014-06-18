@@ -9,7 +9,8 @@ app = angular.module 'fhirface', [
 ], ($routeProvider) ->
     $routeProvider
       .when '/',
-        templateUrl: '/views/welcome.html'
+        templateUrl: '/views/conformance.html'
+        controller: 'ConformanceCtrl'
       .when '/conformance',
         templateUrl: '/views/conformance.html'
         controller: 'ConformanceCtrl'

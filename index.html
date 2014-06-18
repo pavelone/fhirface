@@ -1,5 +1,5 @@
 <!doctype html>
-<html ng-app="fhirplaceGui">
+<html ng-app="fhirface">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -17,8 +17,7 @@
   <div class="menu-item" ng-repeat="item in menu" ng-class="item.active && 'active'">
     <i class="fa fa-chevron-right"></i>
     <a href="#{{item.url}}">
-      <i ng-show="item.icon"
-        ng-class="item.icon" class="fa"></i>
+      <i ng-show="item.icon" ng-class="item.icon" class="fa"></i>
       {{item.label}}
     </a>
   </div>

@@ -1,5 +1,14 @@
-FHIRPlace
+Fhirface
 =========
 
-    npm install
-    nvm use 0.10 && `npm bin`/grunt build watch
+## Installation
+
+```
+git clone https://github.com/fhirbase/fhirface
+cd fhirface
+npm install
+`npm bin`/bower install
+env PREFIX=<dir-to-build> `npm bin`/grunt build
+```
+
+

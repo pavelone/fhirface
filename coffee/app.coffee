@@ -1,6 +1,6 @@
 'use strict'
 
-app = angular.module 'fhirplaceGui', [
+app = angular.module 'fhirface', [
   'ngCookies',
   'ngAnimate',
   'ngSanitize',

@@ -11,7 +11,7 @@
 <div class="item"
   ng-repeat="entry in entries"
   ng-click="entry._open =! entry._open">
-  <strong>{{entry.updated}}</strong>
+  {{entry.published}}
   <span class="text-muted">{{entry.link[0].href}}</span>
   <i ng-hide="entry._open" class="fa fa-chevron-down"></i>
   <i ng-show="entry._open" class="fa fa-chevron-up"></i>

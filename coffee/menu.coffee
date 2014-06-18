@@ -15,7 +15,6 @@ angular.module('fhirface').provider 'menu', ()->
     menu =
       items: []
       build: (p, items...)=>
-        console.log(p)
         menu.items = items.map (i)->
           if i.match(/\*$/)
             menu.current = angular.extend({active: true}, MENU[i.replace(/\*$/,'')](p))

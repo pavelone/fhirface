@@ -86,7 +86,7 @@ app.controller 'ResourcesNewCtrl', (menu, fhir, $scope, $routeParams, $location)
 
   $scope.resource = {}
 
-  rt = $scope.resourceType
+  rt = $routeParams.resourceType
 
   $scope.save = ->
     fhir.create rt, $scope.resource.content, ()->

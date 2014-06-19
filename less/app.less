@@ -165,11 +165,11 @@ body {
 }
 @-webkit-keyframes rotate {
   from {
-      -webkit-transform: rotate(0deg);
-    }
+    -webkit-transform: rotate(0deg);
+  }
   to {
-      -webkit-transform: rotate(360deg);
-    }
+    -webkit-transform: rotate(360deg);
+  }
 }
 .spinner {
   -webkit-animation-name:             rotate;
@@ -267,10 +267,9 @@ body {
   right: 10px;
   box-shadow: 1px 1px 2px gray;
   bottom: 10px;
-  padding: 4px;
   z-index: 1001;
   .notification {
-    padding: 4px;
+    padding: 5px;
     cursor: pointer;
     &:hover {
       background: #f1f1f1;
@@ -279,5 +278,15 @@ body {
       }
     }
     border-bottom: 1px solid #ddd;
+  }
+}
+.search-param {
+  .fa {
+    padding: 2px;
+    border-radius: 100%;
+    color: #666;
+  }
+  b, .fa {
+    text-shadow: 1px 1px 1px white;
   }
 }

@@ -60,7 +60,7 @@ app.controller 'ConformanceCtrl', (menu, $scope, fhir) ->
   menu.build({}, 'conformance*')
 
   fhir.metadata (data)->
-    $scope.resources = data.rest[0].resource.sort(keyComparator('type'))
+    $scope.resources = data.rest[0].resource.sort(keyComparator('type')) || []
     delete data.rest
     delete data.text
     $scope.conformance = data
@@ -77,7 +77,7 @@ app.controller 'ResourcesIndexCtrl', (menu, fhir, $scope, $routeParams) ->
   $scope.search = ()->
     fhir.search rt, $scope.query, (data, s, x, config) ->
         $scope.searchUri = config
-        $scope.resources = data.entry
+        $scope.resources = data.entry || []
 
   $scope.search()
 

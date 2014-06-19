@@ -12,7 +12,7 @@
 <body>
 <div class="brcrmp">
   <a href="#/">
-    <span class="icon logo" ng-class="progressCls">&#x4C;</span>
+    <span class="icon logo" ng-class="{prgrss: (fhir.active > 0)}">&#x4C;</span>
   </a>
   <div class="menu-item" ng-repeat="item in menu.items" ng-class="item.active && 'active'">
     <i class="fa fa-chevron-right"></i>
@@ -45,8 +45,8 @@
 
 <div ng-view class="view"></div>
 
-<div class="notifications">
-  <div class="notification" ng-repeat="note in fhir.notifications">
+<div class="notifications" ng-show="fhir.notifications.length > 0">
+  <div ng-click="fhir.removeNotification(note)" class="notification" ng-repeat="note in fhir.notifications">
     {{note.method}}: {{note.url}} - {{note.status}} <i class="fa fa-close">x</i>
   </div>
 </div>

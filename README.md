@@ -1,10 +1,10 @@
 Fhirface
 =========
+## [Live Demo](http://try-fhirplace.hospital-systems.com/fhirface/index.html#/)
+
+[fhirplace](https://github.com/fhirbase/fhirplace) on server side.
 
 ## Description
-
-
-### [Live Demo](http://try-fhirplace.hospital-systems.com/fhirface/index.html#/)
 
 Generic UI for [FHIR](http://www.hl7.org/implement/standards/fhir/) servers.
 
@@ -68,7 +68,7 @@ package.json  # npm packages
 
 * tags support
 * authorization
-* profile visualization
+* better profile visualization
 
 ## Contribution
 

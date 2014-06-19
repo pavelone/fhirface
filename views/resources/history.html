@@ -1,21 +1,30 @@
-<h3>History</h3>
-<hr/>
-<ul>
-  <li ng-repeat="(k,v) in history">
-  <b>{{k}}</b> <code>{{v | json}}</code>
-  </li>
-</ul>
-
-<h3>Entry</h3>
-<hr/>
-<div class="item"
-  ng-repeat="entry in entries"
-  ng-click="entry._open =! entry._open">
-  {{entry.published}}
-  <span class="text-muted">{{entry.link[0].href}}</span>
-  <i ng-hide="entry._open" class="fa fa-chevron-down"></i>
-  <i ng-show="entry._open" class="fa fa-chevron-up"></i>
-  <div>
-    <pre ng-show="entry._open">{{ entry.content | json }}</pre>
+<div class="row">
+  <div class="col-xs-8">
+    <h3>Entry</h3>
+    <hr/>
+    <div class="item"
+      ng-repeat="entry in entries"
+      ng-click="entry._open =! entry._open">
+      {{entry.published}}
+      <span class="text-muted">{{entry.link[0].href}}</span>
+      <i ng-hide="entry._open" class="fa fa-chevron-down"></i>
+      <i ng-show="entry._open" class="fa fa-chevron-up"></i>
+      <div>
+        <pre ng-show="entry._open">{{ entry.content | json }}</pre>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-4">
+    <div class="well">
+      <h3>History</h3>
+      <hr/>
+      <ul>
+        <li ng-repeat="(k,v) in history">
+        <b>{{k}}</b> <code>{{v | json}}</code>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
+
+

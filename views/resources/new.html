@@ -1,9 +1,32 @@
-<textarea style="min-height: 1000px;"
-  ui-codemirror="{mode: 'javascript', lineWrapping: true, lineNumbers: true, json: true}"
-  ng-model='resource.content'></textarea>
+<div class="row">
+  <div class="col-xs-8">
+    <textarea style="min-height: 1000px;"
+      ui-codemirror="{mode: 'javascript', lineWrapping: true, lineNumbers: true, json: true}"
+      ng-model='resource.content'></textarea>
 
-<div class="btns">
-  <a href="#/resources/{{resourceType}}" class="btn btn-default">Cancel</a>
-  <button ng-click="save()" class="btn btn-success">Save</button>
-  <button ng-click="validate()" class="btn btn-info">Validate</button>
+    <div class="btns">
+      <a href="#/resources/{{resourceType}}" class="btn btn-default">Cancel</a>
+      <button ng-click="save()" class="btn btn-success">Save</button>
+      <button ng-click="validate()" class="btn btn-info">Validate</button>
+    </div>
+  </div>
+  <div class="col-xs-4">
+    <div class="well">
+      <h3>Tags <button ng-click="clearTags()" class="btn btn-danger pull-right">Clear</button></h3>
+      <hr/>
+      <div ng-repeat="tag in tags">
+        <input class="form-control" ng-model="tag.scheme" placeholder="scheme"/>
+        <input class="form-control" ng-model="tag.term" placeholder="term"/>
+        <input class="form-control" ng-model="tag.label" placeholder="label"/>
+        <a ng-click="removeTag(tag)">remove</a>
+        <hr/>
+      </div>
+      <hr/>
+      <div class="btn-group">
+        <button class="btn btn-default" ng-click="addTag()">Add Tag</button>
+        <button class="btn btn-default" ng-click="addProfile()">Add Profile</button>
+        <button class="btn btn-default" ng-click="addSecurity()">Add Security</button>
+      </div>
+    </div>
+  </div>
 </div>

@@ -1,11 +1,36 @@
-<h3> {{menu.current.label}} </h3>
-<textarea
-  style="min-height: 500px"
-  ui-codemirror="{mode: 'javascript', lineWrapping: true, lineNumbers: true, json: true}"
-  ng-model='resource.content'></textarea>
-</p>
+<div class="row">
+  <div class="col-xs-8">
+    <h3>ID: {{resource.id}} </h3>
+    <textarea
+      style="min-height: 500px"
+      ui-codemirror="{mode: 'javascript', lineWrapping: true, lineNumbers: true, json: true}"
+      ng-model='resource.content'></textarea>
+  </div>
+  <div class="col-xs-4">
+    <div class="well">
+      <h3>Tags</h3>
+      <hr/>
+      <div ng-repeat="tag in tags">
+        <input class="form-control" ng-model="tag.scheme" placeholder="scheme"/>
+        <input class="form-control" ng-model="tag.term" placeholder="term"/>
+        <input class="form-control" ng-model="tag.label" placeholder="label"/>
+        <hr/>
+      </div>
+      <hr/>
+      <div class="btn-group">
+        <button class="btn btn-default" ng-click="addTag()">Add Tag</button>
+        <button class="btn btn-default" ng-click="addProfile()">Add Profile</button>
+        <button class="btn btn-default" ng-click="addSecurity()">Add Security</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="btns">
   <button ng-click="save()" class="btn btn-success">Update</button>
   <button ng-click="destroy()" class="btn btn-danger">Destroy</button>
   <button ng-click="validate()" class="btn btn-info">Validate</button>
+  <span class="btns-div"></span>
+  <button ng-click="removeAllTags()" class="btn btn-danger">Remove All Tags</button>
+  <button ng-click="affixTags()" class="btn btn-success" >Affix Tags</button>
 </div>

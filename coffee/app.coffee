@@ -58,6 +58,9 @@ app.filter 'profileTypes', ()->
 
 app.controller 'ConformanceCtrl', (menu, $scope, fhir) ->
   menu.build({}, 'conformance*')
+  fhir.tags (data)->
+    console.log("TAGS", data)
+    $scope.tags = data
 
   fhir.metadata (data)->
     $scope.resources = data.rest[0].resource.sort(keyComparator('type')) || []
@@ -81,15 +84,38 @@ app.controller 'ResourcesIndexCtrl', (menu, fhir, $scope, $routeParams) ->
 
   $scope.search()
 
+initTags = ($scope)->
+  $scope.tags = []
+
+  schemes = {
+   Tag: "http://hl7.org/fhir/tag/security",
+   Profile: "http://hl7.org/fhir/tag/profile",
+   Security: "http://hl7.org/fhir/tag/tag"
+  }
+
+  $scope.removeTag = (x)->
+    tags = $scope.tags
+    tags.splice(tags.indexOf(x),1)
+
+  $scope.clearTags = ()->
+    $scope.tags = []
+
+  mkAdder = (schem)->
+    ()-> $scope.tags.push({scheme: schem})
+
+  $scope["add#{k}"] = mkAdder(s) for k,s of schemes
+
 app.controller 'ResourcesNewCtrl', (menu, fhir, $scope, $routeParams, $location) ->
   menu.build($routeParams, 'conformance', 'index', 'new*')
 
   $scope.resource = {}
+  initTags($scope)
 
   rt = $routeParams.resourceType
 
   $scope.save = ->
-    fhir.create rt, $scope.resource.content, ()->
+    tags = $scope.tags.filter((i)-> i.term)
+    fhir.create rt, $scope.resource.content, tags, ()->
       $location.path("/resources/#{rt}")
 
   $scope.validate = ()->
@@ -102,12 +128,14 @@ app.controller 'ResourceCtrl', (menu, fhir, $scope, $routeParams, $location) ->
 
   rt = $routeParams.resourceType
   id = $routeParams.id
+  initTags($scope)
 
   loadResource = ()->
-    fhir.read rt, id, (data, status, headers, config)->
-      $scope.resource = { content: pretifyJson(data) }
-      $scope.resourceContentLocation = headers('Content-Location')
-      throw "content location required" unless $scope.resourceContentLocation
+    fhir.read rt, id, (contentLoc, res, tags)->
+      $scope.tags = tags
+      $scope.resource = { id: id, content: pretifyJson(res) }
+      $scope.resourceContentLocation = contentLoc
+      throw "content location required" unless contentLoc
 
   loadResource()
 
@@ -120,6 +148,8 @@ app.controller 'ResourceCtrl', (menu, fhir, $scope, $routeParams, $location) ->
   $scope.destroy = ->
     if window.confirm("Destroy #{$scope.resource.id}?")
       fhir.delete rt, id, ()-> $location.path("/resources/#{rt}")
+
+  $scope.removeAllTags = ->
 
   $scope.validate = ()->
     res = $scope.resource.content

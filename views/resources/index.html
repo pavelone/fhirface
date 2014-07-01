@@ -38,7 +38,10 @@
         <code>{{resource.id | uuid}}</code>
         <span>LMD: {{resource.published}}</span>
 
-        <span class="text-muted" ng-repeat="cat in resource.category">{{cat.label || cat.term}}</span>
+        <span class="pull-right text-muted">
+          Tags:
+          <span ng-repeat="tag in resource.category" title="{{tag.term}}"> {{tag.label || tag.term}}; </span>
+        </span>
       </a>
     </div>
   </div>

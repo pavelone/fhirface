@@ -7,6 +7,12 @@
       ng-click="entry._open =! entry._open">
       {{entry.published}}
       <span class="text-muted">{{entry.link[0].href}}</span>
+
+      <span class="pull-right text-muted">
+        Tags:
+        <span ng-repeat="tag in entry.category" title="{{tag.term}}"> {{tag.label || tag.term}}; </span>
+      </span>
+
       <i ng-hide="entry._open" class="fa fa-chevron-down"></i>
       <i ng-show="entry._open" class="fa fa-chevron-up"></i>
       <div>

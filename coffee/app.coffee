@@ -75,10 +75,22 @@ app.controller 'ResourcesIndexCtrl', (menu, fhir, $scope, $routeParams) ->
 
   rt = $routeParams.resourceType
 
-  fhir.profile rt, (data)-> $scope.profile = data
+  tags = [
+    {type: 'string',  name: '_tag', documentation: 'Search by tag'},
+    {type: 'string',  name: '_profile', documentation: 'Search by profile tag'},
+    {type: 'string',  name: '_security', documentation: 'Search by security tag'}
+  ]
+  fhir.profile rt, (data)->
+    $scope.profile = data
+    $scope.profile.structure[0].searchParam.unshift(t) for t in tags
 
   $scope.search = ()->
-    fhir.search rt, $scope.query, (data, s, x, config) ->
+    query = {}
+    for k,v of $scope.query
+      if $.trim(v)
+        query[k]=$.trim(v)
+
+    fhir.search rt, query, (data, s, x, config) ->
         $scope.searchUri = config
         $scope.resources = data.entry || []
 
@@ -88,9 +100,9 @@ initTags = ($scope)->
   $scope.tags = []
 
   schemes = {
-   Tag: "http://hl7.org/fhir/tag/security",
+   Security: "http://hl7.org/fhir/tag/security",
    Profile: "http://hl7.org/fhir/tag/profile",
-   Security: "http://hl7.org/fhir/tag/tag"
+   Tag: "http://hl7.org/fhir/tag/tag"
   }
 
   $scope.removeTag = (x)->
@@ -142,14 +154,21 @@ app.controller 'ResourceCtrl', (menu, fhir, $scope, $routeParams, $location) ->
   $scope.save = ->
     cl = $scope.resourceContentLocation
     res = $scope.resource.content
-    fhir.update rt, id, cl, res, (data,status,headers,req)->
+    tags = $scope.tags.filter((i)-> i.term)
+    fhir.update rt, id, cl, res, tags, (data,status,headers,req)->
       $scope.resourceContentLocation = headers('content-location')
 
   $scope.destroy = ->
     if window.confirm("Destroy #{$scope.resource.id}?")
       fhir.delete rt, id, ()-> $location.path("/resources/#{rt}")
 
-  $scope.removeAllTags = ->
+  $scope.removeAllTags = ()->
+    fhir.removeResourceTags rt, id, ()->
+      $scope.tags = []
+
+  $scope.affixResourceTags = ()->
+    fhir.affixResourceTags rt, id, $scope.tags, (tagList)->
+      $scope.tags = tagList.category
 
   $scope.validate = ()->
     res = $scope.resource.content

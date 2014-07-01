@@ -34,6 +34,12 @@ angular.module('fhirface').provider 'fhir', ()->
       tags: (cb)->
         uri = '/_tags'
         http(method: 'GET', url: uri).success(cb)
+      affixResourceTags: (rt, id, tags, cb)->
+        uri = "/#{rt}/#{id}/_tags"
+        http(method: 'POST', url: uri, headers: {"Category": buildTags(tags)}).success(cb)
+      removeResourceTags: (rt, id, cb)->
+        uri = "/#{rt}/#{id}/_tags/_delete"
+        http(method: 'POST', url: uri).success(cb)
       profile: (rt, cb)->
         http(method: 'GET', url: "/Profile/#{rt}").success(cb)
       search: (rt, query, cb)->
@@ -49,9 +55,9 @@ angular.module('fhirface').provider 'fhir', ()->
         uri = "/#{rt}/#{id}"
         http(method: 'GET', url: uri).success (data, status, headers, config)->
           cb(headers('Content-Location'), data, extractTags(headers('Category')))
-      update: (rt, id, cl, res, cb)->
+      update: (rt, id, cl, res, tags, cb)->
         uri = "/#{rt}/#{id}"
-        http(method: "PUT", url: uri, data: res, headers: {'Content-Location': cl}).success(cb)
+        http(method: "PUT", url: uri, data: res, headers: {'Content-Location': cl, "Category": buildTags(tags)}).success(cb)
       delete: (rt,id, cb)->
         uri = "/#{rt}/#{id}"
         http(method: "DELETE", url: uri).success(cb)

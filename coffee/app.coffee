@@ -82,7 +82,7 @@ app.controller 'ResourcesIndexCtrl', (menu, fhir, $scope, $routeParams) ->
   ]
   fhir.profile rt, (data)->
     $scope.profile = data
-    $scope.profile.structure[0].searchParam.unshift(t) for t in tags
+    $scope.profile.searchParam.unshift(t) for t in tags
 
   $scope.search = ()->
     query = {}

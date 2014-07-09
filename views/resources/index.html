@@ -49,7 +49,7 @@
     <form ng-submit="search()" class="well">
       <h4> Search </h4>
       <hr/>
-      <div ng-repeat="param in profile.structure[0].searchParam"
+      <div ng-repeat="param in profile.searchParam"
         style="margin-bottom: 10px;">
         <div ng-if="param.type == 'string' || param.type == 'token' " class="search-param">
           <div ng-click="param._open = !param._open">

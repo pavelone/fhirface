@@ -1,5 +1,5 @@
 NOTIFICATION_REMOVE_TIMEOUT = 2000
-BASE_PREFIX = '' # if u have base FHIR url like http://one.com/two set BASE_PREFIX to "/two"
+BASE_PREFIX = '/' # if u have base FHIR url like http://one.com/two set BASE_PREFIX to "/two"
 angular.module('fhirface').provider 'fhir', ()->
   buildTags = (tags)->
     tags.filter((i)-> i.term)
@@ -30,40 +30,44 @@ angular.module('fhirface').provider 'fhir', ()->
       notifications: []
       error: null
       metadata: (cb)->
-        uri = "#{BASE_PREFIX}/metadata"
+        uri = "#{BASE_PREFIX}metadata"
         http(method: 'GET', url: uri).success(cb)
       tags: (cb)->
-        uri = "#{BASE_PREFIX}/_tags"
+        uri = "#{BASE_PREFIX}_tags"
         http(method: 'GET', url: uri).success(cb)
       affixResourceTags: (rt, id, tags, cb)->
-        uri = "#{BASE_PREFIX}/#{rt}/#{id}/_tags"
+        uri = "#{BASE_PREFIX}#{rt}/#{id}/_tags"
         http(method: 'POST', url: uri, headers: {"Category": buildTags(tags)}).success(cb)
       removeResourceTags: (rt, id, cb)->
-        uri = "#{BASE_PREFIX}/#{rt}/#{id}/_tags/_delete"
+        uri = "#{BASE_PREFIX}#{rt}/#{id}/_tags/_delete"
         http(method: 'POST', url: uri).success(cb)
       profile: (rt, cb)->
-        http(method: 'GET', url: "/Profile/#{rt}").success(cb)
+        @metadata (data)->
+          res = data.rest[0].resource.filter((i)-> i.type.toLowerCase() == rt.toLowerCase())[0]
+          console.log(res)
+          cb(res)
+        # http(method: 'GET', url: "/Profile/#{rt}").success(cb)
       search: (rt, query, cb)->
-        uri = "#{BASE_PREFIX}/#{rt}/_search"
+        uri = "#{BASE_PREFIX}#{rt}/_search"
         http(method: 'GET', url: uri, params: angular.copy(query)).success(cb)
       create: (rt, res, tags, cb)->
-        uri = "#{BASE_PREFIX}/#{rt}"
+        uri = "#{BASE_PREFIX}#{rt}"
         http(method: 'POST', url: uri, data: res, headers: {"Category": buildTags(tags)}).success(cb)
       validate: (rt, res, cb)->
-        uri = "#{BASE_PREFIX}/#{rt}/_validate"
+        uri = "#{BASE_PREFIX}#{rt}/_validate"
         http(method: 'POST', url: uri, data: res).success(cb)
       read: (rt, id, cb)->
-        uri = "#{BASE_PREFIX}/#{rt}/#{id}"
+        uri = "#{BASE_PREFIX}#{rt}/#{id}"
         http(method: 'GET', url: uri).success (data, status, headers, config)->
           cb(headers('Content-Location'), data, extractTags(headers('Category')))
       update: (rt, id, cl, res, tags, cb)->
-        uri = "#{BASE_PREFIX}/#{rt}/#{id}"
+        uri = "#{BASE_PREFIX}#{rt}/#{id}"
         http(method: "PUT", url: uri, data: res, headers: {'Content-Location': cl, "Category": buildTags(tags)}).success(cb)
       delete: (rt,id, cb)->
-        uri = "#{BASE_PREFIX}/#{rt}/#{id}"
+        uri = "#{BASE_PREFIX}#{rt}/#{id}"
         http(method: "DELETE", url: uri).success(cb)
       history: (rt, id, cb)->
-        uri = "#{BASE_PREFIX}/#{rt}/#{id}/_history"
+        uri = "#{BASE_PREFIX}#{rt}/#{id}/_history"
         http(method: 'GET', url: uri).success(cb)
       removeNotification: (i)->
         prov.notifications.splice(prov.notifications.indexOf(i), 1)

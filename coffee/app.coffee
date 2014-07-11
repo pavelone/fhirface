@@ -59,7 +59,7 @@ app.filter 'profileTypes', ()->
 app.controller 'ConformanceCtrl', (menu, $scope, fhir) ->
   menu.build({}, 'conformance*')
   fhir.tags (data)->
-    console.log("TAGS", data)
+    # console.log("TAGS", data)
     $scope.tags = data
 
   fhir.metadata (data)->

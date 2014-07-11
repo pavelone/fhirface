@@ -2,7 +2,7 @@ NOTIFICATION_REMOVE_TIMEOUT = 2000
 BASE_PREFIX = '/' # if u have base FHIR url like http://one.com/two set BASE_PREFIX to "/two"
 angular.module('fhirface').provider 'fhir', ()->
   buildTags = (tags)->
-    tags.filter((i)-> i.term)
+    tags.filter((i)-> $.trim(i.term))
       .map((i)-> "#{i.term}; scheme=\"#{i.scheme}\"; label=\"#{i.label}\"")
       .join(",")
 
@@ -21,7 +21,6 @@ angular.module('fhirface').provider 'fhir', ()->
         acc = {term: parts[0]}
         addKey(acc, parts[1])
         addKey(acc, parts[2])
-        console.log(acc)
         acc
 
   $get: ($http, $timeout)->
@@ -37,14 +36,19 @@ angular.module('fhirface').provider 'fhir', ()->
         http(method: 'GET', url: uri).success(cb)
       affixResourceTags: (rt, id, tags, cb)->
         uri = "#{BASE_PREFIX}#{rt}/#{id}/_tags"
-        http(method: 'POST', url: uri, headers: {"Category": buildTags(tags)}).success(cb)
+        headers = {}
+        tagHeader = buildTags(tags)
+        if tagHeader
+          headers["Category"] =  tagHeader
+          http(method: 'POST', url: uri, headers: headers).success(cb)
+        else
+          console.log('Empty tags')
       removeResourceTags: (rt, id, cb)->
         uri = "#{BASE_PREFIX}#{rt}/#{id}/_tags/_delete"
         http(method: 'POST', url: uri).success(cb)
       profile: (rt, cb)->
         @metadata (data)->
           res = data.rest[0].resource.filter((i)-> i.type.toLowerCase() == rt.toLowerCase())[0]
-          console.log(res)
           cb(res)
         # http(method: 'GET', url: "/Profile/#{rt}").success(cb)
       search: (rt, query, cb)->
@@ -52,7 +56,10 @@ angular.module('fhirface').provider 'fhir', ()->
         http(method: 'GET', url: uri, params: angular.copy(query)).success(cb)
       create: (rt, res, tags, cb)->
         uri = "#{BASE_PREFIX}#{rt}"
-        http(method: 'POST', url: uri, data: res, headers: {"Category": buildTags(tags)}).success(cb)
+        headers = {}
+        tagHeader = buildTags(tags)
+        headers["Category"] =  tagHeader if tagHeader
+        http(method: 'POST', url: uri, data: res, headers: headers).success(cb)
       validate: (rt, res, cb)->
         uri = "#{BASE_PREFIX}#{rt}/_validate"
         http(method: 'POST', url: uri, data: res).success(cb)
@@ -62,7 +69,11 @@ angular.module('fhirface').provider 'fhir', ()->
           cb(headers('Content-Location'), data, extractTags(headers('Category')))
       update: (rt, id, cl, res, tags, cb)->
         uri = "#{BASE_PREFIX}#{rt}/#{id}"
-        http(method: "PUT", url: uri, data: res, headers: {'Content-Location': cl, "Category": buildTags(tags)}).success(cb)
+        headers = {}
+        tagHeader = buildTags(tags)
+        headers["Category"] =  tagHeader if tagHeader
+        headers['Content-Location'] = cl
+        http(method: "PUT", url: uri, data: res, headers: headers).success(cb)
       delete: (rt,id, cb)->
         uri = "#{BASE_PREFIX}#{rt}/#{id}"
         http(method: "DELETE", url: uri).success(cb)

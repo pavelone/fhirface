@@ -1,5 +1,5 @@
 NOTIFICATION_REMOVE_TIMEOUT = 2000
-BASE_PREFIX = '/' # if u have base FHIR url like http://one.com/two set BASE_PREFIX to "/two"
+BASE_PREFIX = 'http://try-fhirplace.hospital-systems.com/' # if u have base FHIR url like http://one.com/two set BASE_PREFIX to "/two"
 angular.module('fhirface').provider 'fhir', ()->
   buildTags = (tags)->
     tags.filter((i)-> $.trim(i.term))

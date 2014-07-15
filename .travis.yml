@@ -1,0 +1,7 @@
+langauge: java
+jdk:
+  - oraclejdk7
+script: ./build.sh
+after_success:
+  - nvm install 0.10
+  - nvm list

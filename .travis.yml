@@ -5,3 +5,4 @@ script: ./build.sh
 after_success:
   - nvm install 0.10
   - nvm list
+  - nvm use 0.10

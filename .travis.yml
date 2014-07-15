@@ -3,4 +3,6 @@ jdk:
   - oraclejdk7
 script: ./build.sh
 after_success:
-  - echo 'Done'
+  - cd fhirbase.github.io
+  - touch .nojekyll
+  - ls -alh

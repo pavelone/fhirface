@@ -1,20 +1,4 @@
 # this module to handle search params api
-# http(method: 'GET', url: "/Profile/#{rt}").success(cb)
-# query:
-# { count: 100,
-#   offset: 0,
-#   sort: [{name: 'date', direction: 'asc'}, {name: 'id'}],
-#   includes: ???
-#   params: [{
-#     name: 'name',
-#     type: 'string',
-#     modifier: 'exact',
-#     operator: null,
-#     values: [tp]
-#   }]
-# }
-# tp = string, number, code&system, url
-# type tp toParamString, isNull
 tags = [
   {type: 'string',  name: '_tag', documentation: 'Search by tag'},
   {type: 'string',  name: '_profile', documentation: 'Search by profile tag'},
@@ -35,12 +19,30 @@ operations = {
   date: ['=', '>', '>=', '<', '<=']
 }
 
+collectChains = (profile)->
+  searchParam = profile.structure[0].searchParam
+  elemsIdx = profile.structure[0].differential
+    .element.reduce(((idx, x)-> idx[x.path]=x; idx ),{})
+
+  console.log(elemsIdx)
+
+  searchParam.reduce(((acc, x)->
+    return acc unless x.type == 'reference'
+    path = x.xpath.replace(/f:/g,'').replace(/\//g,'.')
+    elem = elemsIdx[path]
+    return acc unless elem
+    for t in elem.definition.type
+      acc.push({sp: x, tp: t})
+    acc
+  ), [])
+
 # create empty query object
 class Query
   constructor: (profile)->
     @searchParam = profile.structure[0].searchParam
     @searchParam.unshift(t) for t in tags
-    @searchChains = @searchParam.filter((x)-> x.type == 'reference')
+    @searchChains = collectChains(profile)
+
     @searchIncludes = profile.structure[0]
       .differential.element.filter (x)->
         (x.definition.type && x.definition.type[0] && x.definition.type[0].code) == 'ResourceReference'

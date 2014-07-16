@@ -27,7 +27,7 @@
       <input placeholder="filter"/>
     </div>
     <div class="itm" ng-repeat="param in query.searchChains" >
-      <ab>{{param.name}}</ab>
+      <ab>{{param | json}}</ab>
       <span>{{param.xpath}}</span>
       <span class="text-muted">{{param.documentation}}</span>
     </div>

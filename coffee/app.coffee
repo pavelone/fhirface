@@ -29,6 +29,10 @@ app = angular.module 'fhirface', [
       .otherwise
         redirectTo: '/'
 
+identity = (x)-> x
+
+rm = (x, xs)-> xs.splice(xs.indexOf(x),1)
+
 app.run ($rootScope, fhir, menu)->
   $rootScope.fhir = fhir
   $rootScope.menu = menu
@@ -68,33 +72,32 @@ app.controller 'ConformanceCtrl', (menu, $scope, fhir) ->
     delete data.text
     $scope.conformance = data
 
-app.controller 'ResourcesIndexCtrl', (menu, fhir, $scope, $routeParams) ->
+app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index*', 'new')
 
-  $scope.query = {}
+  $scope.searchState = 'search'
 
   rt = $routeParams.resourceType
 
-  tags = [
-    {type: 'string',  name: '_tag', documentation: 'Search by tag'},
-    {type: 'string',  name: '_profile', documentation: 'Search by profile tag'},
-    {type: 'string',  name: '_security', documentation: 'Search by security tag'}
-  ]
+  $scope.addParam = (p)->
+    if $scope.searchState == 'addSortParam'
+      $scope.query.addSortParam(p)
+    if $scope.searchState == 'addRef'
+      $scope.query.addInclude(p)
+    else
+      $scope.query.addSearchParam(p)
+    $scope.searchState="search"
+
   fhir.profile rt, (data)->
     $scope.profile = data
-    $scope.profile.searchParam.unshift(t) for t in tags
+    $scope.query = fhirParams(data)
 
   $scope.search = ()->
-    query = {}
-    for k,v of $scope.query
-      if $.trim(v)
-        query[k]=$.trim(v)
-
-    fhir.search rt, query, (data, s, x, config) ->
+    fhir.search rt, $scope.query, (data, s, x, config) ->
         $scope.searchUri = config
         $scope.resources = data.entry || []
 
-  $scope.search()
+  # $scope.search()
 
 initTags = ($scope)->
   $scope.tags = []

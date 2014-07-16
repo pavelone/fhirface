@@ -1,5 +1,6 @@
 NOTIFICATION_REMOVE_TIMEOUT = 2000
 BASE_PREFIX = '/' # if u have base FHIR url like http://one.com/two set BASE_PREFIX to "/two"
+
 angular.module('fhirface').provider 'fhir', ()->
   buildTags = (tags)->
     tags.filter((i)-> $.trim(i.term))
@@ -47,13 +48,12 @@ angular.module('fhirface').provider 'fhir', ()->
         uri = "#{BASE_PREFIX}#{rt}/#{id}/_tags/_delete"
         http(method: 'POST', url: uri).success(cb)
       profile: (rt, cb)->
-        @metadata (data)->
-          res = data.rest[0].resource.filter((i)-> i.type.toLowerCase() == rt.toLowerCase())[0]
-          cb(res)
-        # http(method: 'GET', url: "/Profile/#{rt}").success(cb)
+        # TODO: use conformance href
+        http(method: 'GET', url: "/Profile/#{rt}").success(cb)
+      # query should be instance of fhirParam
       search: (rt, query, cb)->
-        uri = "#{BASE_PREFIX}#{rt}/_search"
-        http(method: 'GET', url: uri, params: angular.copy(query)).success(cb)
+        uri = "#{BASE_PREFIX}#{rt}/_search?#{query.toQueryString()}"
+        http(method: 'GET', url: uri).success(cb)
       create: (rt, res, tags, cb)->
         uri = "#{BASE_PREFIX}#{rt}"
         headers = {}

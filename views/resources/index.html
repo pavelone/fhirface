@@ -1,70 +1,157 @@
-<div class="row">
-  <div class="col-xs-8">
-    <h3> {{menu.current.label}}
-      <div class="pull-right">
-        <a ng-hide="showProfile" ng-click="showProfile=!showProfile" class="btn btn-default">
-          <i class="fa fa-info"></i>
-          Profile</a>
-        <a ng-show="showProfile" ng-click="showProfile=!showProfile" class="btn btn-default">
-          <i class="fa fa-list"></i>
-          Search</a>
-      </div>
-    </h3>
-
-    <div ng-show="showProfile">
-      <hr/>
-      <p>{{profile.description}}</p>
-      <div ng-bind-html="profile.text.div"></div>
-      <br/>
-      <div class="item" ng-repeat="elem in profile.structure[0].element">
-          <b>{{elem.path}}</b>
-          {{elem.definition.min}}-{{elem.definition.max}}
-          [{{elem.definition.type | profileTypes}}]
-          <span class="text-muted">{{elem.definition.short}}</span>
-      </div>
+<div class="srch-box">
+  <div ng-show = "searchState=='addParam' || searchState=='addSortParam'">
+    <div class="ttl">
+      <a class="btn btn-default" ng-click="searchState='search'"> &lt; Back</a>
+      <input placeholder="filter"/>
     </div>
-
-    <div ng-hide="showProfile">
-      <hr/>
-      <pre>{{searchUri.method}} {{searchUri.url}} {{searchUri.params}}</pre>
-      <div class="text-muted"
-        ng-show="resources.length == 0">
-        Nothing to show :(
-      </div>
-      <a class="item"
-        ng-repeat="resource in resources"
-        href="#/resources/{{resource.content.resourceType}}/{{resource.id}}">
-        <code>{{resource.title}}</code>
-        <code>{{resource.id | uuid}}</code>
-        <span>LMD: {{resource.published}}</span>
-
-        <span class="pull-right text-muted">
-          Tags:
-          <span ng-repeat="tag in resource.category" title="{{tag.term}}"> {{tag.label || tag.term}}; </span>
-        </span>
-      </a>
+    <div class="itm" ng-repeat="param in query.searchParam"
+      ng-click="addParam(param)" >
+      <b>{{param.name}}</b>
+      <span class="text-muted">{{param.documentation}}</span>
     </div>
   </div>
-  <div class="col-xs-4">
-    <form ng-submit="search()" class="well">
-      <h4> Search </h4>
-      <hr/>
-      <div ng-repeat="param in profile.searchParam"
-        style="margin-bottom: 10px;">
-        <div ng-if="param.type == 'string' || param.type == 'token' " class="search-param">
-          <div ng-click="param._open = !param._open">
-            <i ng-hide="param._open" class="fa fa-chevron-down"></i>
-            <i ng-show="param._open" class="fa fa-chevron-up"></i>
-            <b> {{ param.name }} </b>
-            <span class="text-muted">{{param.documentation}}</span>
-          </div>
-          <div ng-if="param._open">
-            <input ng-model="query[param.name]" class="form-control" placeholder="{{param.type}}"/>
-          </div>
+  <div ng-show = "searchState=='addRef'">
+    <div class="ttl">
+      <a class="btn btn-default" ng-click="searchState='search'"> &lt; Back</a>
+      <input placeholder="filter"/>
+    </div>
+    <div class="itm" ng-repeat="param in query.searchIncludes"
+      ng-click="addParam(param)" >
+      <ab>{{param.path}}</ab>
+      <span class="text-muted">{{param.definition.short}}</span>
+    </div>
+  </div>
+  <div ng-show = "searchState=='addChain'">
+    <div class="ttl">
+      <a class="btn btn-default" ng-click="searchState='search'"> &lt; Back</a>
+      <input placeholder="filter"/>
+    </div>
+    <div class="itm" ng-repeat="param in query.searchChains" >
+      <ab>{{param.name}}</ab>
+      <span>{{param.xpath}}</span>
+      <span class="text-muted">{{param.documentation}}</span>
+    </div>
+  </div>
+  <div ng-show = "searchState=='search'"
+    ><div class="prm prm-ttl">
+      <div class="lbl"><b>Search</b></div
+      ><button class="c4" ng-click="searchState='addParam'">Add Param</button
+      ><button class="c8" ng-click="searchState='addChain'">Add Chained Param</button>
+    </div
+    ><div
+      class="prm" ng-repeat="param in query.params" >
+      <button class="rm c2" ng-click="query.removeSearchParam(param)">×</button
+      ><span class="lbl">{{param.name}}</span
+      ><select class="c4"
+        ng-model="param.modifier"
+        ng-options="mod for mod in param.modifiers"></select
+      ><select ng-show="param.operations.length > 1"
+        class="c2" ng-model="param.operation"
+        ng-options="op for op in param.operations"></select
+      ><div class="c2" ng-show="param.operations.length == 1"
+        style="text-align: center;"> = </div
+      ><div class="or-vals"
+        ><div clas="or-val" ng-repeat="v in param.values"
+          ><div style="display:inline-block;"
+            ng-switch="param.type"
+            ><div style="display: inline-block;"
+              ng-switch-when="string"
+              ><div
+                ><input ng-model="v.value" class="c16"
+                placeholder="string"/>
+              </div>
+            </div
+            ><div style="display: inline-block;"
+              ng-switch-when="date"
+              ><input ng-model="v.value"
+              class="c16"
+              placeholder="date"/>
+            </div
+            ><div style="display: inline-block;"
+              ng-switch-when="token"
+              ><input class="c8" ng-model="v.code" placeholder="code"/
+              ><input class="c8" ng-model="v.system" placeholder="system"/>
+            </div
+            ><div style="display: inline-block;"
+              ng-switch-when="number"
+              ><input class="c16" type="number" ng-model="v.value" placeholder="number"/>
+            </div
+            ><div style="display: inline-block;"
+              ng-switch-when="reference"
+              ><input class="c16" ng-model="v.value" placeholder="reference"/>
+            </div>
+          </div
+          ><button class="c2"ng-show="$index == 0" ng-click="query.addParamValue(param)">OR</button
+          ><button class="rm c2" ng-show="$index > 0" ng-click="query.removeParamValue(param, v)">×</button>
         </div>
-      </div>
-      <hr/>
-      <button class="btn btn-success" ng-click="search()">Search</button>
-    </form>
+      </div
+      ><button class="c2" ng-click="query.cloneSearchParam(param)">AND</button>
+    </div>
+    <div class="prm prm-ttl">
+      <div class="lbl"><b>Sort</b></div
+      ><button class="c4" ng-click="searchState='addSortParam'">Add Param</button>
+    </div
+    ><div class="prm" ng-repeat="param in query.sort">
+      <button class="rm c2" ng-click="query.removeSortParam(param)">×</button
+      ><span class="lbl">{{param.name}}</span
+      ><select ng-model="param.direction" class="c4">
+        <option>asc</option>
+        <option>desc</option>
+      </select>
+    </div>
+    <div class="prm prm-ttl">
+      <div class="lbl"><b>Paging</b></div>
+    </div>
+    <div class="prm">
+      <span class="llbl">count</span
+      ><input class="c4" ng-model="query.count" type="number" min="0" step="1"/>
+    </div>
+    <div class="prm">
+      <span class="llbl" min="0" step="1">offset</span
+      ><input class="c4" ng-model="query.offset" type="number"/>
+    </div>
+    <div class="prm prm-ttl">
+      <div class="lbl"><b>Includes</b></div
+      ><button class="c4" ng-click="searchState='addRef'">Add Ref</button>
+    </div
+    ><div class="prm" ng-repeat="param in query.includes">
+      <button class="rm c2" ng-click="query.removeInclude(param)">×</button
+      ><div class="c16">{{param.path}}</div>
+    </div>
   </div>
+</div>
+
+<pre>{{query.toQueryString()}}</pre>
+<hr/>
+<button ng-click="search()" class="btn btn-success">Search</button>
+
+<div ng-show="showProfile">
+  <p>{{profile.description}}</p>
+  <div ng-bind-html="profile.text.div"></div>
+  <br/>
+  <div class="item" ng-repeat="elem in profile.structure[0].element">
+    <b>{{elem.path}}</b>
+    {{elem.definition.min}}-{{elem.definition.max}}
+    [{{elem.definition.type | profileTypes}}]
+    <span class="text-muted">{{elem.definition.short}}</span>
+  </div>
+</div>
+
+<div ng-hide="showProfile">
+  <div class="text-muted"
+    ng-show="resources.length == 0">
+    Nothing to show :(
+  </div>
+  <a class="item"
+    ng-repeat="resource in resources"
+    href="#/resources/{{resource.content.resourceType}}/{{resource.id}}">
+    <code>{{resource.title}}</code>
+    <code>{{resource.id | uuid}}</code>
+    <span>LMD: {{resource.published}}</span>
+
+    <span class="pull-right text-muted">
+      Tags:
+      <span ng-repeat="tag in resource.category" title="{{tag.term}}"> {{tag.label || tag.term}}; </span>
+    </span>
+  </a>
 </div>

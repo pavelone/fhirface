@@ -1,0 +1,8 @@
+langauge: java
+jdk:
+  - oraclejdk7
+script: ./build.sh
+after_success:
+  - cd fhirbase.github.io
+  - touch .nojekyll
+  - ls -alh

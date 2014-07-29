@@ -124,7 +124,7 @@ app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, $scope, $routePara
     chains = $scope.typeChainParams(type).map (p)->
       $scope.typeReferenceTypes(type, p.name).map (t)->
         {name: p.name + ':' + t, type: t}
-    params = chains.concat([]).concat([]).reduce (x, y)-> x.concat y
+    params = chains.concat([[], []]).reduce (x, y)-> x.concat y
     $scope.filterParams(params, filter)
 
   $scope.typeFilterParams = (type, parts)->
@@ -134,11 +134,18 @@ app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, $scope, $routePara
       next = $scope.typeFilterChainParams(type, parts[0]).map (c)->
         $scope.typeFilterParams(c.type, parts.slice(1)).map (p)->
           {name: c.name + '.' + p.name, type: p.type, documentation: p.documentation, xpath: p.xpath}
-      next.reduce (x, y)-> (x || []).concat(y || [])
+      next.concat([[], []]).reduce (x, y)-> x.concat(y)
 
-  $scope.typeFilterSearchParams = (type, filter) ->
-    params = $scope.typeFilterParams(type, filter.split(".")).map (p)->
-       $scope.searchCache[p.name] ||= p
+  $scope.typeFilterSortedParams = (type, filter)->
+    $scope.typeFilterParams(type, filter.split(".")).sort (a, b)->
+      a.name.localeCompare(b.name)
+
+  $scope.typeFilterSearchParams = (type, filter)->
+    one = $scope.typeFilterSortedParams(type, filter)
+    two = $scope.typeFilterSortedParams(type, filter + ".")
+    one.concat(two).map (p)->
+      $scope.searchCache[p.name] ||= p
+    .slice(0, 30)
 
   $scope.search = ()->
     fhir.search rt, $scope.query, (data, s, x, config) ->

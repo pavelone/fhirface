@@ -2,9 +2,9 @@
   <div ng-show = "searchState=='addParam' || searchState=='addSortParam'">
     <div class="ttl">
       <a class="btn btn-default" ng-click="searchState='search'"> &lt; Back</a>
-      <input placeholder="filter"/>
+      <input ng-model="searchFilter" placeholder="filter"/>
     </div>
-    <div class="itm" ng-repeat="param in query.searchParam"
+    <div class="itm" ng-repeat="param in typeFilterSearchParams(searchResourceType, searchFilter)"
       ng-click="addParam(param)" >
       <b>{{param.name}}</b>
       <span class="text-muted">{{param.documentation}}</span>

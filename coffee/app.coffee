@@ -75,9 +75,24 @@ app.controller 'ConformanceCtrl', (menu, $scope, fhir) ->
 app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index*', 'new')
 
-  $scope.searchState = 'search'
-
   rt = $routeParams.resourceType
+
+  $scope.searchState = 'search'
+  $scope.searchFilter = ''
+  $scope.searchResourceType = rt
+  $scope.query = {searchParam: []}
+  $scope.searchCache = {}
+  $scope.profileCache = {}
+  $scope.searchTypes = []
+
+  $scope.fillProfileCache = (type)->
+    fhir.profile type, (data)->
+      $scope.profileCache[type] = fhirParams(data).searchParam
+
+  fhir.metadata (data)->
+    $scope.searchTypes = (data.rest[0].resource.sort(keyComparator('type')) || []).map (i)-> i.type
+    for t in $scope.searchTypes
+      $scope.fillProfileCache(t)
 
   $scope.addParam = (p)->
     if $scope.searchState == 'addSortParam'
@@ -91,6 +106,39 @@ app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, $scope, $routePara
   fhir.profile rt, (data)->
     $scope.profile = data
     $scope.query = fhirParams(data)
+
+  $scope.typeSearchParams = (type)->
+    $scope.profileCache[type]
+
+  $scope.filterParams = (params, filter)->
+    regexp = RegExp(filter.replace(/(.)/g, "$1.*"), "i")
+    params.filter (p) -> regexp.test(p.name)
+
+  $scope.typeChainParams = (type)->
+    ($scope.typeSearchParams(type) || []).filter (p)-> p.type == 'reference'
+
+  $scope.typeReferenceTypes = (type, ref)->
+    $scope.searchTypes
+
+  $scope.typeFilterChainParams = (type, filter)->
+    chains = $scope.typeChainParams(type).map (p)->
+      $scope.typeReferenceTypes(type, p.name).map (t)->
+        {name: p.name + ':' + t, type: t}
+    params = chains.concat([]).concat([]).reduce (x, y)-> x.concat y
+    $scope.filterParams(params, filter)
+
+  $scope.typeFilterParams = (type, parts)->
+    if parts.length < 2
+      $scope.filterParams($scope.typeSearchParams(type) || [], parts[0] || '')
+    else
+      next = $scope.typeFilterChainParams(type, parts[0]).map (c)->
+        $scope.typeFilterParams(c.type, parts.slice(1)).map (p)->
+          {name: c.name + '.' + p.name, type: p.type, documentation: p.documentation, xpath: p.xpath}
+      next.reduce (x, y)-> (x || []).concat(y || [])
+
+  $scope.typeFilterSearchParams = (type, filter) ->
+    params = $scope.typeFilterParams(type, filter.split(".")).map (p)->
+       $scope.searchCache[p.name] ||= p
 
   $scope.search = ()->
     fhir.search rt, $scope.query, (data, s, x, config) ->

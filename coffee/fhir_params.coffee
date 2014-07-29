@@ -36,12 +36,38 @@ collectChains = (profile)->
     acc
   ), [])
 
+collectChainType = (profile)->
+  searchParam = profile.structure[0].searchParam
+  elemsIdx = profile.structure[0].differential
+    .element.reduce(((idx, x)-> idx[x.path]=x; idx ),{})
+
+  console.log(elemsIdx)
+
+  types = {}
+
+  searchParam.reduce(((acc, x)->
+    return acc unless x.type == 'reference'
+    path = x.xpath.replace(/f:/g,'').replace(/\//g,'.')
+    elem = elemsIdx[path]
+    return acc unless elem
+    for t in elem.definition.type
+      acc.push({sp: x, tp: t})
+      if t.profile
+        tp = t.profile.split("/")
+        rt = tp[tp.length - 1]
+        if rt != 'Any'
+          (types[x.name] ||= []).push(rt)
+    acc
+  ), [])
+  types
+
 # create empty query object
 class Query
   constructor: (profile)->
     @searchParam = profile.structure[0].searchParam
     @searchParam.unshift(t) for t in tags
     @searchChains = collectChains(profile)
+    @chainType = collectChainType(profile)
 
     @searchIncludes = profile.structure[0]
       .differential.element.filter (x)->

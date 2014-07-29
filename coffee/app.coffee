@@ -83,11 +83,14 @@ app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, $scope, $routePara
   $scope.query = {searchParam: []}
   $scope.searchCache = {}
   $scope.profileCache = {}
+  $scope.chainsCache = {}
   $scope.searchTypes = []
 
   $scope.fillProfileCache = (type)->
     fhir.profile type, (data)->
-      $scope.profileCache[type] = fhirParams(data).searchParam
+      profile = fhirParams(data)
+      $scope.profileCache[type] = profile.searchParam
+      $scope.chainsCache[type] = profile.chainType
 
   fhir.metadata (data)->
     $scope.searchTypes = (data.rest[0].resource.sort(keyComparator('type')) || []).map (i)-> i.type
@@ -101,6 +104,7 @@ app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, $scope, $routePara
       $scope.query.addInclude(p)
     else
       $scope.query.addSearchParam(p)
+      $scope.searchFilter = ''
     $scope.searchState="search"
 
   fhir.profile rt, (data)->
@@ -118,7 +122,7 @@ app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, $scope, $routePara
     ($scope.typeSearchParams(type) || []).filter (p)-> p.type == 'reference'
 
   $scope.typeReferenceTypes = (type, ref)->
-    $scope.searchTypes
+    ($scope.chainsCache[type] || {})[ref] || $scope.searchTypes
 
   $scope.typeFilterChainParams = (type, filter)->
     chains = $scope.typeChainParams(type).map (p)->

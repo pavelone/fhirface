@@ -62,9 +62,15 @@ angular.module('fhirface').provider 'fhir', ()->
         tagHeader = buildTags(tags)
         headers["Category"] =  tagHeader if tagHeader
         http(method: 'POST', url: uri, data: res, headers: headers).success(cb)
-      validate: (rt, res, cb)->
+      validate: (rt, id, cl, res, cb)->
         uri = "#{BASE_PREFIX}#{rt}/_validate"
-        http(method: 'POST', url: uri, data: res).success(cb)
+        if id
+          uri = uri + '/' + id
+        headers = {}
+        tagHeader = buildTags(tags)
+        headers["Category"] =  tagHeader if tagHeader
+        headers['Content-Location'] = cl
+        http(method: 'POST', url: uri, data: res, headers: headers).success(cb)
       read: (rt, id, cb)->
         uri = "#{BASE_PREFIX}#{rt}/#{id}"
         http(method: 'GET', url: uri).success (data, status, headers, config)->

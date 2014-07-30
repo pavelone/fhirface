@@ -210,7 +210,9 @@ app.controller 'ResourcesNewCtrl', (menu, fhir, $scope, $routeParams, $location)
       $location.path("/resources/#{rt}")
 
   $scope.validate = ()->
-    fhir.validate(rt, $scope.resource.content)
+    res = $scope.resource.content
+    tags = $scope.tags.filter((i)-> i.term)
+    fhir.validate(rt, null, null, res, tags)
 
 pretifyJson = (str)-> angular.toJson(angular.fromJson(str), true)
 
@@ -250,8 +252,10 @@ app.controller 'ResourceCtrl', (menu, fhir, $scope, $routeParams, $location) ->
       $scope.tags = tagList.category
 
   $scope.validate = ()->
+    cl = $scope.resourceContentLocation
     res = $scope.resource.content
-    fhir.validate(rt, id, res)
+    tags = $scope.tags.filter((i)-> i.term)
+    fhir.validate(rt, id, cl, res, tags)
 
 app.controller 'ResourcesHistoryCtrl', (menu, fhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index', 'show', 'history*')

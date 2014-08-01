@@ -88,6 +88,12 @@ angular.module('fhirface').provider 'fhir', ()->
       history: (rt, id, cb)->
         uri = "#{BASE_PREFIX}#{rt}/#{id}/_history"
         http(method: 'GET', url: uri).success(cb)
+      history_type: (rt, cb)->
+        uri = "#{BASE_PREFIX}#{rt}/_history"
+        http(method: 'GET', url: uri).success(cb)
+      history_all: (cb)->
+        uri = "#{BASE_PREFIX}_history"
+        http(method: 'GET', url: uri).success(cb)
       removeNotification: (i)->
         prov.notifications.splice(prov.notifications.indexOf(i), 1)
     }

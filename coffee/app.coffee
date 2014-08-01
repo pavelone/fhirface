@@ -14,6 +14,9 @@ app = angular.module 'fhirface', [
       .when '/conformance',
         templateUrl: '/views/conformance.html'
         controller: 'ConformanceCtrl'
+      .when '/history',
+        templateUrl: '/views/resources/history.html'
+        controller: 'HistoryCtrl'
       .when '/resources/:resourceType',
         templateUrl: '/views/resources/index.html'
         controller: 'ResourcesIndexCtrl'
@@ -61,19 +64,19 @@ app.filter 'profileTypes', ()->
     ).join(', ')
 
 app.controller 'ConformanceCtrl', (menu, $scope, fhir) ->
-  menu.build({}, 'conformance*')
+  menu.build({}, 'conformance*', 'history_all')
   fhir.tags (data)->
     # console.log("TAGS", data)
     $scope.tags = data
 
   fhir.metadata (data)->
-    $scope.resources = data.rest[0].resource.sort(keyComparator('type')) || []
+    $scope.resources = [{type: 'Any'}].concat data.rest[0].resource.sort(keyComparator('type')) || []
     delete data.rest
     delete data.text
     $scope.conformance = data
 
 app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, $scope, $routeParams) ->
-  menu.build($routeParams, 'conformance', 'index*', 'new')
+  menu.build($routeParams, 'conformance', 'index*', 'new', 'history_type')
 
   rt = $routeParams.resourceType
 
@@ -261,6 +264,14 @@ app.controller 'ResourcesHistoryCtrl', (menu, fhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index', 'show', 'history*')
 
   fhir.history $routeParams.resourceType, $routeParams.id, (data) ->
+    $scope.entries = data.entry
+    $scope.history  = data
+    delete $scope.history.entry
+
+app.controller 'HistoryCtrl', (menu, fhir, $scope, $routeParams) ->
+  menu.build($routeParams, 'conformance', 'history_all*')
+
+  fhir.history_all (data)->
     $scope.entries = data.entry
     $scope.history  = data
     delete $scope.history.entry

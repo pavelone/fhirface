@@ -14,12 +14,15 @@ app = angular.module 'fhirface', [
       .when '/conformance',
         templateUrl: '/views/conformance.html'
         controller: 'ConformanceCtrl'
-      .when '/history',
-        templateUrl: '/views/resources/history.html'
-        controller: 'HistoryCtrl'
+      .when '/resources/Any',
+        templateUrl: '/views/resources/index.html'
+        controller: 'IndexCtrl'
       .when '/resources/:resourceType',
         templateUrl: '/views/resources/index.html'
         controller: 'ResourcesIndexCtrl'
+      .when '/resources/Any/history',
+        templateUrl: '/views/resources/history.html'
+        controller: 'HistoryCtrl'
       .when '/resources/:resourceType/history',
         templateUrl: '/views/resources/history.html'
         controller: 'ResourcesHistoryCtrl'
@@ -67,7 +70,7 @@ app.filter 'profileTypes', ()->
     ).join(', ')
 
 app.controller 'ConformanceCtrl', (menu, $scope, fhir) ->
-  menu.build({}, 'conformance*', 'history_all')
+  menu.build({}, 'conformance*')
   fhir.tags (data)->
     # console.log("TAGS", data)
     $scope.tags = data
@@ -77,6 +80,107 @@ app.controller 'ConformanceCtrl', (menu, $scope, fhir) ->
     delete data.rest
     delete data.text
     $scope.conformance = data
+
+app.controller 'IndexCtrl', (menu, fhir, fhirParams, $scope, $routeParams) ->
+  menu.build($routeParams, 'conformance', 'index_all*', 'history_all')
+
+  rt = 'Alert'
+
+  $scope.searchState = 'search'
+  $scope.searchFilter = ''
+  $scope.searchResourceType = rt
+  $scope.query = {searchParam: []}
+  $scope.searchCache = {}
+  $scope.profileCache = {}
+  $scope.chainsCache = {}
+  $scope.searchTypes = []
+
+  $scope.fillProfileCache = (type)->
+    fhir.profile type, (data)->
+      profile = fhirParams(data)
+      $scope.profileCache[type] = profile.searchParam
+      $scope.chainsCache[type] = profile.chainType
+
+  fhir.metadata (data)->
+    $scope.searchTypes = (data.rest[0].resource.sort(keyComparator('type')) || []).map (i)-> i.type
+    # for t in $scope.searchTypes
+    #  $scope.fillProfileCache(t)
+
+  $scope.addParam = (p)->
+    if $scope.searchState == 'addSortParam'
+      $scope.query.addSortParam(p)
+    if $scope.searchState == 'addRef'
+      $scope.query.addInclude(p)
+    else
+      $scope.query.addSearchParam(p)
+      $scope.searchFilter = ''
+    $scope.searchState="search"
+
+  fhir.profile rt, (data)->
+    $scope.profile = data
+    $scope.query = fhirParams(data)
+
+  $scope.typeSearchParams = (type)->
+    cache = $scope.profileCache[type]
+    if cache
+      cache
+    else
+      $scope.profileCache[type] = []
+      $scope.fillProfileCache(type)
+      console.log('profile ' + type)
+      []
+
+  $scope.typeChainTypes = (type)->
+    cache = $scope.chainsCache[type]
+    if cache
+      cache
+    else
+      $scope.chainsCache[type] = {}
+      $scope.fillProfileCache(type)
+      console.log('chain ' + type)
+      {}
+
+  $scope.filterParams = (params, filter)->
+    regexp = RegExp(filter.replace(/(.)/g, "$1.*"), "i")
+    params.filter (p) -> regexp.test(p.name)
+
+  $scope.typeChainParams = (type)->
+    ($scope.typeSearchParams(type) || []).filter (p)-> p.type == 'reference'
+
+  $scope.typeReferenceTypes = (type, ref)->
+    $scope.typeChainTypes(type)[ref] || $scope.searchTypes
+
+  $scope.typeFilterChainParams = (type, filter)->
+    chains = $scope.typeChainParams(type).map (p)->
+      $scope.typeReferenceTypes(type, p.name).map (t)->
+        {name: p.name + ':' + t, type: t}
+    params = chains.concat([[], []]).reduce (x, y)-> x.concat y
+    $scope.filterParams(params, filter)
+
+  $scope.typeFilterParams = (type, parts)->
+    if parts.length < 2
+      $scope.filterParams($scope.typeSearchParams(type) || [], parts[0] || '')
+    else
+      next = $scope.typeFilterChainParams(type, parts[0]).map (c)->
+        $scope.typeFilterParams(c.type, parts.slice(1)).map (p)->
+          {name: c.name + '.' + p.name, type: p.type, documentation: p.documentation, xpath: p.xpath}
+      next.concat([[], []]).reduce (x, y)-> x.concat(y)
+
+  $scope.typeFilterSortedParams = (type, filter)->
+    $scope.typeFilterParams(type, filter.split(".")).sort (a, b)->
+      a.name.localeCompare(b.name)
+
+  $scope.typeFilterSearchParams = (type, filter)->
+    one = $scope.typeFilterSortedParams(type, filter)
+    two = $scope.typeFilterSortedParams(type, filter + ".")
+    one.concat(two).map (p)->
+      $scope.searchCache[p.name] ||= p
+    .slice(0, 30)
+
+  $scope.search = ()->
+    fhir.search rt, $scope.query, (data, s, x, config) ->
+        $scope.searchUri = config
+        $scope.resources = data.entry || []
 
 app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index*', 'new', 'history_type')
@@ -280,7 +384,7 @@ app.controller 'ResourcesHistoryCtrl', (menu, fhir, $scope, $routeParams) ->
     delete $scope.history.entry
 
 app.controller 'HistoryCtrl', (menu, fhir, $scope, $routeParams) ->
-  menu.build($routeParams, 'conformance', 'history_all*')
+  menu.build($routeParams, 'conformance', 'index_all', 'history_all*')
 
   fhir.history_all (data)->
     $scope.entries = data.entry

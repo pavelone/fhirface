@@ -4,13 +4,14 @@ cropUuid = (id)->
   "...#{sid}"
 
 MENU=
-  conformance: (p)-> {url: '/conformance', label: 'Conformance'}
-  history_all: (p)-> {url: "/history", label: 'History', icon: 'fa-history'}
-  index:       (p)-> {url: "/resources/#{p.resourceType}", label: p.resourceType}
+  conformance:  (p)-> {url: '/conformance', label: 'Conformance'}
+  index_all:    (p)-> {url: "/resources/Any", label: 'Any'}
+  history_all:  (p)-> {url: "/resources/Any/history", label: 'History', icon: 'fa-history'}
+  index:        (p)-> {url: "/resources/#{p.resourceType}", label: p.resourceType}
   history_type: (p)-> {url: "/resources/#{p.resourceType}/history", label: 'History', icon: 'fa-history'}
-  show:        (p)-> {url: "/resources/#{p.resourceType}/#{p.id}", label: cropUuid(p.id)}
-  history:     (p)-> {url: "/resources/#{p.resourceType}/#{p.id}/history", label: 'History', icon: 'fa-history'}
-  new:         (p)-> {url: "/resources/#{p.resourceType}/new", label: "New", icon: "fa-plus"}
+  show:         (p)-> {url: "/resources/#{p.resourceType}/#{p.id}", label: cropUuid(p.id)}
+  history:      (p)-> {url: "/resources/#{p.resourceType}/#{p.id}/history", label: 'History', icon: 'fa-history'}
+  new:          (p)-> {url: "/resources/#{p.resourceType}/new", label: "New", icon: "fa-plus"}
 
 angular.module('fhirface').provider 'menu', ()->
   $get: ()->

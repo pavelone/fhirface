@@ -20,6 +20,9 @@ app = angular.module 'fhirface', [
       .when '/resources/:resourceType',
         templateUrl: '/views/resources/index.html'
         controller: 'ResourcesIndexCtrl'
+      .when '/resources/:resourceType/history',
+        templateUrl: '/views/resources/history.html'
+        controller: 'ResourcesHistoryCtrl'
       .when '/resources/:resourceType/new',
         templateUrl: '/views/resources/new.html'
         controller: 'ResourcesNewCtrl'
@@ -28,7 +31,7 @@ app = angular.module 'fhirface', [
         controller: 'ResourceCtrl'
       .when '/resources/:resourceType/:id/history',
         templateUrl: '/views/resources/history.html'
-        controller: 'ResourcesHistoryCtrl'
+        controller: 'ResourceHistoryCtrl'
       .otherwise
         redirectTo: '/'
 
@@ -260,10 +263,18 @@ app.controller 'ResourceCtrl', (menu, fhir, $scope, $routeParams, $location) ->
     tags = $scope.tags.filter((i)-> i.term)
     fhir.validate(rt, id, cl, res, tags)
 
-app.controller 'ResourcesHistoryCtrl', (menu, fhir, $scope, $routeParams) ->
+app.controller 'ResourceHistoryCtrl', (menu, fhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index', 'show', 'history*')
 
   fhir.history $routeParams.resourceType, $routeParams.id, (data) ->
+    $scope.entries = data.entry
+    $scope.history  = data
+    delete $scope.history.entry
+
+app.controller 'ResourcesHistoryCtrl', (menu, fhir, $scope, $routeParams) ->
+  menu.build($routeParams, 'conformance', 'index', 'history_type*')
+
+  fhir.history_type $routeParams.resourceType, (data) ->
     $scope.entries = data.entry
     $scope.history  = data
     delete $scope.history.entry

@@ -15,7 +15,7 @@
     <span class="icon logo" ng-class="{prgrss: (fhir.active > 0)}">&#x4C;</span>
   </a>
   <div class="menu-item" ng-repeat="item in menu.items" ng-class="item.active && 'active'">
-    <i class="fa fa-chevron-right"></i>
+    <i ng-class="item.guess && 'fa-ellipsis-v' || 'fa-chevron-right'" class="fa"></i>
     <a href="#{{item.url}}">
       <i ng-show="item.icon" ng-class="item.icon" class="fa"></i>
       {{item.label}}

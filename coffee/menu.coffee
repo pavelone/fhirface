@@ -18,10 +18,16 @@ angular.module('fhirface').provider 'menu', ()->
     menu =
       items: []
       build: (p, items...)=>
+        state = 'path'
         menu.items = items.map (i)->
           if i.match(/\*$/)
+            state = 'end'
             menu.current = angular.extend({active: true}, MENU[i.replace(/\*$/,'')](p))
+          else if state == 'guess'
+            angular.extend({guess: true}, MENU[i](p))
           else
+            if state == 'end'
+              state = 'guess'
             MENU[i](p)
     menu
 

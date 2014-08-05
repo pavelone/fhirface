@@ -34,8 +34,17 @@ angular.module('fhirface').provider 'fhir', ()->
       metadata: (cb)->
         uri = "#{BASE_PREFIX}metadata"
         http(method: 'GET', url: uri).success(cb)
-      tags: (cb)->
+      tags_all: (cb)->
         uri = "#{BASE_PREFIX}_tags"
+        http(method: 'GET', url: uri).success(cb)
+      tags_type: (rt, cb)->
+        uri = "#{BASE_PREFIX}#{rt}/_tags"
+        http(method: 'GET', url: uri).success(cb)
+      tags: (rt, id, cb)->
+        uri = "#{BASE_PREFIX}#{rt}/#{id}/_tags"
+        http(method: 'GET', url: uri).success(cb)
+      tags_version: (rt, id, vid, b)->
+        uri = "#{BASE_PREFIX}#{rt}/#{id}/_history/#{vid}/_tags"
         http(method: 'GET', url: uri).success(cb)
       affixResourceTags: (rt, id, tags, cb)->
         uri = "#{BASE_PREFIX}#{rt}/#{id}/_tags"

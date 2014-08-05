@@ -17,15 +17,21 @@ app = angular.module 'fhirface', [
       .when '/resources/Any',
         templateUrl: '/views/resources/index.html'
         controller: 'IndexCtrl'
-      .when '/resources/:resourceType',
-        templateUrl: '/views/resources/index.html'
-        controller: 'ResourcesIndexCtrl'
       .when '/resources/Any/history',
         templateUrl: '/views/resources/history.html'
         controller: 'HistoryCtrl'
+      .when '/resources/Any/tags',
+        templateUrl: '/views/resources/tags.html'
+        controller: 'TagsCtrl'
+      .when '/resources/:resourceType',
+        templateUrl: '/views/resources/index.html'
+        controller: 'ResourcesIndexCtrl'
       .when '/resources/:resourceType/history',
         templateUrl: '/views/resources/history.html'
         controller: 'ResourcesHistoryCtrl'
+      .when '/resources/:resourceType/tags',
+        templateUrl: '/views/resources/tags.html'
+        controller: 'ResourcesTagsCtrl'
       .when '/resources/:resourceType/new',
         templateUrl: '/views/resources/new.html'
         controller: 'ResourcesNewCtrl'
@@ -35,6 +41,9 @@ app = angular.module 'fhirface', [
       .when '/resources/:resourceType/:id/history',
         templateUrl: '/views/resources/history.html'
         controller: 'ResourceHistoryCtrl'
+      .when '/resources/:resourceType/:id/tags',
+        templateUrl: '/views/resources/tags.html'
+        controller: 'ResourceTagsCtrl'
       .otherwise
         redirectTo: '/'
 
@@ -71,9 +80,6 @@ app.filter 'profileTypes', ()->
 
 app.controller 'ConformanceCtrl', (menu, $scope, fhir) ->
   menu.build({}, 'conformance*')
-  fhir.tags (data)->
-    # console.log("TAGS", data)
-    $scope.tags = data
 
   fhir.metadata (data)->
     $scope.resources = [{type: 'Any'}].concat data.rest[0].resource.sort(keyComparator('type')) || []
@@ -82,7 +88,7 @@ app.controller 'ConformanceCtrl', (menu, $scope, fhir) ->
     $scope.conformance = data
 
 app.controller 'IndexCtrl', (menu, fhir, fhirParams, $scope, $routeParams) ->
-  menu.build($routeParams, 'conformance', 'index_all*', 'history_all')
+  menu.build($routeParams, 'conformance', 'index_all*', 'history_all', 'tags_all')
 
   rt = 'Alert'
 
@@ -183,7 +189,7 @@ app.controller 'IndexCtrl', (menu, fhir, fhirParams, $scope, $routeParams) ->
         $scope.resources = data.entry || []
 
 app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, $scope, $routeParams) ->
-  menu.build($routeParams, 'conformance', 'index*', 'new', 'history_type')
+  menu.build($routeParams, 'conformance', 'index*', 'new', 'history_type', 'tags_type')
 
   rt = $routeParams.resourceType
 
@@ -327,7 +333,7 @@ app.controller 'ResourcesNewCtrl', (menu, fhir, $scope, $routeParams, $location)
 pretifyJson = (str)-> angular.toJson(angular.fromJson(str), true)
 
 app.controller 'ResourceCtrl', (menu, fhir, $scope, $routeParams, $location) ->
-  menu.build($routeParams,'conformance', 'index', 'show*', 'history')
+  menu.build($routeParams,'conformance', 'index', 'show*', 'history', 'tags')
 
   rt = $routeParams.resourceType
   id = $routeParams.id
@@ -390,3 +396,21 @@ app.controller 'HistoryCtrl', (menu, fhir, $scope, $routeParams) ->
     $scope.entries = data.entry
     $scope.history  = data
     delete $scope.history.entry
+
+app.controller 'TagsCtrl', (menu, fhir, $scope, $routeParams) ->
+  menu.build($routeParams, 'conformance', 'index_all', 'tags_all*')
+
+  fhir.tags_all (data)->
+    $scope.tags = data
+
+app.controller 'ResourcesTagsCtrl', (menu, fhir, $scope, $routeParams) ->
+  menu.build($routeParams, 'conformance', 'index', 'tags_type*')
+
+  fhir.tags_type $routeParams.resourceType, (data)->
+    $scope.tags = data
+
+app.controller 'ResourceTagsCtrl', (menu, fhir, $scope, $routeParams) ->
+  menu.build($routeParams, 'conformance', 'index', 'show', 'tags*')
+
+  fhir.tags $routeParams.resourceType, $routeParams.id, (data)->
+    $scope.tags = data

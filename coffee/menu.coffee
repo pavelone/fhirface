@@ -7,10 +7,13 @@ MENU=
   conformance:  (p)-> {url: '/conformance', label: 'Conformance'}
   index_all:    (p)-> {url: "/resources/Any", label: 'Any'}
   history_all:  (p)-> {url: "/resources/Any/history", label: 'History', icon: 'fa-history'}
+  tags_all:  (p)-> {url: "/resources/Any/tags", label: 'Tags', icon: 'fa-tags'}
   index:        (p)-> {url: "/resources/#{p.resourceType}", label: p.resourceType}
   history_type: (p)-> {url: "/resources/#{p.resourceType}/history", label: 'History', icon: 'fa-history'}
+  tags_type: (p)-> {url: "/resources/#{p.resourceType}/tags", label: 'Tags', icon: 'fa-tags'}
   show:         (p)-> {url: "/resources/#{p.resourceType}/#{p.id}", label: cropUuid(p.id)}
   history:      (p)-> {url: "/resources/#{p.resourceType}/#{p.id}/history", label: 'History', icon: 'fa-history'}
+  tags:      (p)-> {url: "/resources/#{p.resourceType}/#{p.id}/tags", label: 'Tags', icon: 'fa-tags'}
   new:          (p)-> {url: "/resources/#{p.resourceType}/new", label: "New", icon: "fa-plus"}
 
 angular.module('fhirface').provider 'menu', ()->

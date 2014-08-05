@@ -1,39 +1,39 @@
 angular.module('fhirface').provider 'search', ()->
   cache = {
-    searchCache: {}
-    profileCache: {}
-    chainsCache: {}
-    searchTypes: []
+    type: []
+    param: {}
+    chain: {}
+    search: {}
   }
 
   $get: (fhir, fhirParams)->
-    
-    fillProfileCache = (type)->
-      fhir.profile type, (data)->
-        profile = fhirParams(data)
-        cache.profileCache[type] = profile.searchParam
-        cache.chainsCache[type] = profile.chainType
 
     fhir.metadata (data)->
-      cache.searchTypes = (data.rest[0].resource.sort(keyComparator('type')) || []).map (i)-> i.type
+      cache.type = (data.rest[0].resource.sort(keyComparator('type')) || []).map (i)-> i.type
+    
+    fillCache = (type)->
+      fhir.profile type, (data)->
+        profile = fhirParams(data)
+        cache.param[type] = profile.searchParam
+        cache.chain[type] = profile.chainType
 
     typeSearchParams = (type)->
-      c = cache.profileCache[type]
+      c = cache.param[type]
       if c
         c
       else
-        cache.profileCache[type] = []
-        fillProfileCache(type)
+        cache.param[type] = []
+        fillCache(type)
         console.log('profile ' + type)
         []
 
     typeChainTypes = (type)->
-      c = cache.chainsCache[type]
+      c = cache.chain[type]
       if c
         c
       else
-        cache.chainsCache[type] = {}
-        fillProfileCache(type)
+        cache.chain[type] = {}
+        fillCache(type)
         console.log('chain ' + type)
         {}
 
@@ -45,7 +45,7 @@ angular.module('fhirface').provider 'search', ()->
       (typeSearchParams(type) || []).filter (p)-> p.type == 'reference'
 
     typeReferenceTypes = (type, ref)->
-      typeChainTypes(type)[ref] || cache.searchTypes
+      typeChainTypes(type)[ref] || cache.type
 
     typeFilterChainParams = (type, filter)->
       chains = typeChainParams(type).map (p)->
@@ -74,7 +74,7 @@ angular.module('fhirface').provider 'search', ()->
         one = typeFilterSortedParams(type, filter)
         two = typeFilterSortedParams(type, filter + ".")
         one.concat(two).map (p)->
-          cache.searchCache[p.name] ||= p
+          cache.search[p.name] ||= p
         .slice(0, 30)
     }
 

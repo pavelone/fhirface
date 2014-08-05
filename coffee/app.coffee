@@ -188,7 +188,7 @@ app.controller 'IndexCtrl', (menu, fhir, fhirParams, $scope, $routeParams) ->
         $scope.searchUri = config
         $scope.resources = data.entry || []
 
-app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, $scope, $routeParams) ->
+app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, search, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index*', 'new', 'history_type', 'tags_type')
 
   rt = $routeParams.resourceType
@@ -283,6 +283,12 @@ app.controller 'ResourcesIndexCtrl', (menu, fhir, fhirParams, $scope, $routePara
     one.concat(two).map (p)->
       $scope.searchCache[p.name] ||= p
     .slice(0, 30)
+
+  $scope.newTypeFilterSearchParams = (type, filter)->
+    search.typeFilterSearchParams(type, filter)
+
+  $scope.cache = ()->
+    search.cache
 
   $scope.search = ()->
     fhir.search rt, $scope.query, (data, s, x, config) ->

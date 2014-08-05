@@ -4,7 +4,7 @@
       <a class="btn btn-default" ng-click="searchState='search'"> &lt; Back</a>
       <input ng-model="searchFilter" placeholder="filter"/>
     </div>
-    <div class="itm" ng-repeat="param in typeFilterSearchParams(searchResourceType, searchFilter)"
+    <div class="itm" ng-repeat="param in newTypeFilterSearchParams(searchResourceType, searchFilter)"
       ng-click="addParam(param)" >
       <b>{{param.name}}</b>
       <span class="text-muted">({{param.type}}) {{param.documentation}}</span>

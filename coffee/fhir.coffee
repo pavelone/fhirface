@@ -105,6 +105,9 @@ angular.module('fhirface').provider 'fhir', ()->
         http(method: 'GET', url: uri).success(cb)
       removeNotification: (i)->
         prov.notifications.splice(prov.notifications.indexOf(i), 1)
+      transaction: (bundle, cb)->
+        uri = "#{BASE_PREFIX}"
+        http(method: 'POST', url: uri, data: bundle).success(cb)
     }
 
     http = (params)->

@@ -108,6 +108,9 @@ angular.module('fhirface').provider 'fhir', ()->
       transaction: (bundle, cb)->
         uri = "#{BASE_PREFIX}"
         http(method: 'POST', url: uri, data: bundle).success(cb)
+      document: (bundle, cb)->
+        uri = "#{BASE_PREFIX}/Document"
+        http(method: 'POST', url: uri, data: bundle).success(cb)
     }
 
     http = (params)->

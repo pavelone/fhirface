@@ -26,6 +26,9 @@ app = angular.module 'fhirface', [
       .when '/resources/Any/transaction',
         templateUrl: '/views/resources/transaction.html'
         controller: 'TransactionCtrl'
+      .when '/resources/Any/document',
+        templateUrl: '/views/resources/document.html'
+        controller: 'DocumentCtrl'
       .when '/resources/:resourceType',
         templateUrl: '/views/resources/index.html'
         controller: 'ResourcesIndexCtrl'
@@ -91,7 +94,7 @@ app.controller 'ConformanceCtrl', (menu, $scope, fhir) ->
     $scope.conformance = data
 
 app.controller 'IndexCtrl', (menu, fhir, fhirParams, search, $scope, $routeParams) ->
-  menu.build($routeParams, 'conformance', 'index_all*', 'transaction', 'history_all', 'tags_all')
+  menu.build($routeParams, 'conformance', 'index_all*', 'transaction', 'document', 'history_all', 'tags_all')
 
   rt = 'Alert'
 
@@ -285,4 +288,13 @@ app.controller 'TransactionCtrl', (menu, fhir, $scope, $routeParams, $location) 
 
   $scope.save = ->
     fhir.transaction $scope.bundle.content, ()->
+      $location.path("/resources/Any")
+
+app.controller 'DocumentCtrl', (menu, fhir, $scope, $routeParams, $location) ->
+  menu.build($routeParams, 'conformance', 'index_all', 'document*')
+
+  $scope.bundle = {}
+
+  $scope.save = ->
+    fhir.document $scope.bundle.content, ()->
       $location.path("/resources/Any")

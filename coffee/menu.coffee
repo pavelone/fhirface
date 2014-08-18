@@ -9,6 +9,7 @@ MENU=
   history_all:  (p)-> {url: "/resources/Any/history", label: 'History', icon: 'fa-history'}
   tags_all:     (p)-> {url: "/resources/Any/tags", label: 'Tags', icon: 'fa-tags'}
   transaction:  (p)-> {url: "/resources/Any/transaction", label: 'Transaction', icon: 'fa-th-list'}
+  document:     (p)-> {url: "/resources/Any/document", label: 'Document', icon: 'fa-book'}
   index:        (p)-> {url: "/resources/#{p.resourceType}", label: p.resourceType}
   history_type: (p)-> {url: "/resources/#{p.resourceType}/history", label: 'History', icon: 'fa-history'}
   tags_type:    (p)-> {url: "/resources/#{p.resourceType}/tags", label: 'Tags', icon: 'fa-tags'}

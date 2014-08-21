@@ -12,6 +12,7 @@
     "angular-animate": "latest",
     "components-font-awesome": "latest",
     "angular-local-storage": "latest",
-    "angular-ui-codemirror": "latest"
+    "angular-ui-codemirror": "latest",
+    "ng-fhir": "fhirbase/ng-fhir"
   }
 }

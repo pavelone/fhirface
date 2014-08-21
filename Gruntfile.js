@@ -56,7 +56,8 @@ module.exports = function (grunt) {
           "lib/codemirror/lib/codemirror.js",
           "lib/codemirror/mode/sql/sql.js",
           "lib/codemirror/mode/javascript/javascript.js",
-          "lib/angular-ui-codemirror/ui-codemirror.js"
+          "lib/angular-ui-codemirror/ui-codemirror.js",
+          "lib/ng-fhir/ng-fhir.js"
         ],
         dest: buildDir + 'js/lib.js'
       },

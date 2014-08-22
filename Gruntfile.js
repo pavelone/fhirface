@@ -7,7 +7,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-angular-templates');
 
-  var buildDir = process.env.PREFIX || '../fhirplace/resources/public/fhirface/';
+  var buildDir = process.env.PREFIX || '../resources/public/fhirface/';
   var files = {}
   files[buildDir + 'js/main.js'] = 'coffee/**/*.coffee';
 

@@ -34,8 +34,14 @@ npm install
 env PREFIX=<dir-to-build> `npm bin`/grunt build
 ```
 
+
 After building you can copy build directory into your web server
 directory and open index.html file.
+
+## Service
+
+> All premium services from developers of Fhirbase projects 
+> should be requested from Choice Hospital Systems (http://Choice-HS.com)
 
 
 ## Implementation details

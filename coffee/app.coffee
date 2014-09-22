@@ -69,6 +69,13 @@ cropUuid = (id)->
 
 app.filter 'uuid', ()-> cropUuid
 
+cropId = (id)->
+  return "ups no uuid :(" unless id
+  arr = id.split('/')
+  arr[arr.length - 1]
+
+app.filter 'id', ()-> cropId
+
 keyComparator = (key)->
  (a, b) ->
    switch

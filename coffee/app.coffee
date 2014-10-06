@@ -69,6 +69,12 @@ cropUuid = (id)->
 
 app.filter 'uuid', ()-> cropUuid
 
+app.filter 'urlFor', ()->
+  (res)->
+    parts = res.id.split(/\//)
+    id = parts[parts.length - 1]
+    "#/resources/#{res.content.resourceType}/#{id}"
+
 cropId = (id)->
   return "ups no uuid :(" unless id
   arr = id.split('/')

@@ -1,0 +1,6 @@
+{
+ "name":"fhirface",
+ "title": "fhirface",
+ "version": "0.1",
+ "description": "Generic FHIR client"
+}

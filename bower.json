@@ -13,7 +13,6 @@
     "fontawesome": "latest",
     "angular-local-storage": "latest",
     "angular-ui-codemirror": "latest",
-    "ng-fhir": "latest",
     "fhir.js": "0.0.2"
   }
 }

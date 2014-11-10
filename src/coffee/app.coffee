@@ -1,5 +1,7 @@
 'use strict'
 
+require('./fhir')
+
 app = angular.module 'fhirface', [
   'ngCookies',
   'ngAnimate',
@@ -104,6 +106,7 @@ app.controller 'ConformanceCtrl', (menu, $scope, $fhir) ->
   menu.build({}, 'conformance*')
 
   $fhir.metadata (data)->
+    console.log('metadata', data)
     $scope.resources = [{type: 'Any'}].concat data.rest[0].resource.sort(keyComparator('type')) || []
     delete data.rest
     delete data.text

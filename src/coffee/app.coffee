@@ -54,6 +54,8 @@ app = angular.module 'fhirface', [
       .otherwise
         redirectTo: '/'
 
+require('./menu')
+
 identity = (x)-> x
 
 rm = (x, xs)-> xs.splice(xs.indexOf(x),1)

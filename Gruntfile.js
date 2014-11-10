@@ -1,29 +1,96 @@
 module.exports = function (grunt) {
-  grunt.loadNpmTasks('grunt-contrib-coffee');
-  grunt.loadNpmTasks('grunt-contrib-less');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-angular-templates');
 
-  var buildDir = (process.env.PREFIX || '../resources/public/fhirface') + '/';
-  var files = {}
-  files[buildDir + 'js/main.js'] = 'coffee/**/*.coffee';
+  var buildDir = (process.env.PREFIX || './dist') + '/';
+
+  [
+  'grunt-contrib-copy',
+  'grunt-contrib-watch',
+  'grunt-contrib-clean',
+  'grunt-contrib-concat',
+  'grunt-contrib-less',
+  'grunt-webpack',
+  'grunt-connect',
+  'grunt-angular-templates'
+  ].forEach(function(tsk){
+    grunt.loadNpmTasks(tsk);
+  })
 
   grunt.initConfig({
     clean: {
       options: { force: true },
       main: [buildDir + '**/*']
     },
-    coffee: {
-      app: {
-        options: { join: true },
-        files: files
+    copy: {
+     index: {
+       src: 'src/index.html',
+       dest: buildDir + 'index.html'
+     },
+     manifest: {
+       src: 'fhir.json',
+       dest: buildDir + 'fhir.json'
+     },
+     fonts: {
+       cwd: "./bower_components/bootstrap/fonts/",
+       expand: true,
+       src: '*',
+       dest: buildDir + 'fonts/'
+     },
+     fontawesome: {
+       cwd: "./bower_components/fontawesome/fonts",
+       expand: true,
+       src: '*',
+       dest: buildDir + 'fonts/'
+     },
+     hsfonts: {
+       cwd: "./src/fonts/",
+       expand: true,
+       src: '*',
+       dest: buildDir + 'fonts/'
+     },
+     img: {
+        cwd: 'src/imgs/',
+        expand: true,
+        src: '*',
+        dest: buildDir + 'imgs/'
+     }
+    },
+    concat: {
+      lib: {
+        src: [
+          "./bower_components/jquery/dist/jquery.min.js",
+          "./bower_components/angular/angular.js",
+          "./bower_components/angular-route/angular-route.js",
+          "./bower_components/angular-animate/angular-animate.js",
+          "./bower_components/angular-cookies/angular-cookies.js",
+          "./bower_components/angular-sanitize/angular-sanitize.js",
+          "./bower_components/codemirror/lib/codemirror.js",
+          "./bower_components/codemirror/mode/javascript/javascript.js",
+          "./bower_components/angular-ui-codemirror/ui-codemirror.js",
+          "./bower_components/ng-fhir/ng-fhir.js"
+        ],
+        dest: buildDir + 'js/lib.js'
       }
     },
-   ngtemplates: {
+    webpack: {
       app: {
+        entry: "./src/coffee/app.coffee",
+        output: {
+          path: buildDir + '/js',
+          filename: "app.js",
+          library: "app",
+          libraryTarget: "umd"
+        },
+        module: {
+          loaders: [
+           { test: /\.coffee$/, loader: "coffee-loader" }
+          ]
+        },
+        resolve: { extensions: ["", ".webpack.js", ".web.js", ".js", ".coffee"]}
+      }
+    },
+    ngtemplates: {
+      app: {
+        cwd: 'src/',
         src: 'views/**/*.html',
         dest: buildDir + 'js/views.js',
         options: {
@@ -33,88 +100,33 @@ module.exports = function (grunt) {
       }
     },
     less: {
-      dist: {
-        files: [{
-          expand: true,
-          cwd: 'less',
-          src: ['*.less', '!.*#.less'],
-          dest: buildDir + 'css/',
-          ext: '.css'
-        }]
+      development: {
+        options: {
+          paths: ["src/less", "bower_components"],
+          cleancss: true,
+          modifyVars: { bgColor: 'white' }
+        },
+        files: (function(){
+         var cssPath = buildDir +  "css/app.css"
+         var obj = {}
+         obj[cssPath] =  ['src/less/app.less']
+         return obj
+        })()
       }
-    },
-    concat: {
-      lib_js: {
-        src: [
-          "lib/jquery/dist/jquery.min.js",
-          "lib/angular/angular.js",
-          "lib/angular-formstamp/build/formstamp.js",
-          "lib/angular-route/angular-route.js",
-          "lib/angular-animate/angular-animate.js",
-          "lib/angular-cookies/angular-cookies.js",
-          "lib/angular-sanitize/angular-sanitize.js",
-          "lib/codemirror/lib/codemirror.js",
-          "lib/codemirror/mode/sql/sql.js",
-          "lib/codemirror/mode/javascript/javascript.js",
-          "lib/angular-ui-codemirror/ui-codemirror.js",
-          "lib/ng-fhir/ng-fhir.js"
-        ],
-        dest: buildDir + 'js/lib.js'
-      },
-      app_js: {
-        src: [ buildDir + 'js/main.js',
-        buildDir + 'js/views.js' ],
-        dest: buildDir + 'js/app.js'
-      },
-      lib_css: {
-        src: [
-        'lib/components-font-awesome/css/font-awesome.min.css',
-        'lib/codemirror/lib/codemirror.css',
-        'lib/bootstrap/dist/css/bootstrap.min.css',
-        "lib/angular-formstamp/build/formstamp.css"
-        ],
-        dest: buildDir + 'css/lib.css'
-      }
-    },
-    copy: {
-      bs_fonts: {
-        cwd: 'lib/bootstrap/dist/fonts/',
-        expand: true,
-        src: '*',
-        dest: buildDir + 'fonts/'
-      },
-      fa_fonts: {
-        cwd: 'lib/components-font-awesome/fonts/',
-        expand: true,
-        src: '*',
-        dest: buildDir + 'fonts/'
-      },
-      hs_fonts: {
-        cwd: 'fonts/',
-        expand: true,
-        src: '*',
-        dest: buildDir + 'fonts/'
-     },
-     index: {
-       src: 'index.html',
-       dest: buildDir + 'index.html'
-     },
-     manifest: {
-       src: 'fhir.json',
-       dest: buildDir + 'fhir.json'
-     }
     },
     watch: {
       main: {
-        files: ['views/**/*', 'index.html','coffee/**/*.coffee', 'less/**/*.less'],
+        files: ['src/**/*'],
         tasks: ['build'],
         options: {
           events: ['changed', 'added'],
           nospawn: true
         }
       }
-    }
+    },
+   connect: { default: { port: 8080, base: 'dist' } }
   });
 
-  grunt.registerTask('build', ['clean', 'coffee', 'less', 'ngtemplates', 'concat', 'copy']);
+  grunt.registerTask('build', ['clean','concat','webpack','ngtemplates', 'less', 'copy']);
+  grunt.registerTask('server', ['connect']);
 };

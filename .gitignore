@@ -22,3 +22,4 @@ node_modules
 resources/public
 lib/
 .lein-env
+bower_components

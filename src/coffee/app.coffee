@@ -120,7 +120,7 @@ app.controller 'ConformanceCtrl', (menu, $scope, $fhir) ->
     delete data.text
     $scope.conformance = data
 
-app.controller 'IndexCtrl', (menu, $appFhir, $appFhirParams, $appFhirSearch, $scope, $routeParams) ->
+app.controller 'IndexCtrl', (menu, $fhir, $appFhirParams, $appFhirSearch, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index_all*', 'transaction', 'document', 'history_all', 'tags_all')
 
   rt = 'Alert'
@@ -140,7 +140,7 @@ app.controller 'IndexCtrl', (menu, $appFhir, $appFhirParams, $appFhirSearch, $sc
       $scope.searchFilter = ''
     $scope.searchState="search"
 
-  $appFhir.profile rt, (data)->
+  $fhir.profile type: rt, success: (data)->
     $scope.profile = data
     $scope.query = $appFhirParams(data)
 
@@ -148,9 +148,10 @@ app.controller 'IndexCtrl', (menu, $appFhir, $appFhirParams, $appFhirSearch, $sc
     $appFhirSearch.typeFilterSearchParams(type, filter)
 
   $scope.search = ()->
-    $appFhir.search rt, $scope.query, (data, s, x, config) ->
-        $scope.searchUri = config
-        $scope.resources = data.entry || []
+    $fhir.search type: rt, query: {}, success: (data, s, x, config)->
+      console.log(data)
+      $scope.searchUri = config
+      $scope.resources = data.entry || []
 
 app.controller 'ResourcesIndexCtrl', (menu, $appFhir, $appFhirParams, $appFhirSearch, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index*', 'new', 'history_type', 'tags_type')

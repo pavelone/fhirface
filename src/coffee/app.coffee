@@ -1,5 +1,9 @@
 'use strict'
 
+BASE_URL = null
+baseUrl = ()->
+  BASE_URL || "#{window.location.protocol}//#{window.location.host}"
+
 require('./fhir')
 
 app = angular.module 'fhirface', [
@@ -63,6 +67,9 @@ identity = (x)-> x
 
 rm = (x, xs)-> xs.splice(xs.indexOf(x),1)
 
+app.config ($fhirProvider)->
+  $fhirProvider.baseUrl = baseUrl()
+
 app.run ($rootScope, $appFhir, menu)->
   $rootScope.fhir = $appFhir
   $rootScope.menu = menu
@@ -103,10 +110,10 @@ app.filter 'profileTypes', ()->
         i.code
     ).join(', ')
 
-app.controller 'ConformanceCtrl', (menu, $scope, $appFhir) ->
+app.controller 'ConformanceCtrl', (menu, $scope, $fhir) ->
   menu.build({}, 'conformance*')
 
-  $appFhir.metadata (data)->
+  $fhir.conformance success: (data)->
     console.log('metadata', data)
     $scope.resources = [{type: 'Any'}].concat data.rest[0].resource.sort(keyComparator('type')) || []
     delete data.rest

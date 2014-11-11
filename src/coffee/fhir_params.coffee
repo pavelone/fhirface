@@ -159,4 +159,4 @@ _numberToQuery= (p)->
   return null if values.length == 0
   "#{p.name}=#{p.operation}#{values.join(',')}"
 
-angular.module('ng-fhir').factory '$fhirParams', ()-> ((profile)-> new Query(profile))
+angular.module('app-fhir').factory '$appFhirParams', ()-> ((profile)-> new Query(profile))

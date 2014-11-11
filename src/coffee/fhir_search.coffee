@@ -97,7 +97,7 @@ buildSearchParams = (query)->
   ps.join "&"
 
 angular
-  .module('ng-fhir')
-  .factory '$fhirSearchBuilder', ()-> buildSearchParams
-  .factory '$fhirSearchInternal', ()->
+  .module('app-fhir')
+  .factory '$appFhirSearchBuilder', ()-> buildSearchParams
+  .factory '$appFhirSearchInternal', ()->
     linearizeParams: linearizeParams

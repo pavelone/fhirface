@@ -8,6 +8,7 @@ app = angular.module 'fhirface', [
   'ngSanitize',
   'ngRoute',
   'ui.codemirror',
+  'app-fhir',
   'ng-fhir'
 ], ($routeProvider) ->
     $routeProvider
@@ -62,8 +63,8 @@ identity = (x)-> x
 
 rm = (x, xs)-> xs.splice(xs.indexOf(x),1)
 
-app.run ($rootScope, $fhir, menu)->
-  $rootScope.fhir = $fhir
+app.run ($rootScope, $appFhir, menu)->
+  $rootScope.fhir = $appFhir
   $rootScope.menu = menu
 
 cropUuid = (id)->
@@ -102,17 +103,17 @@ app.filter 'profileTypes', ()->
         i.code
     ).join(', ')
 
-app.controller 'ConformanceCtrl', (menu, $scope, $fhir) ->
+app.controller 'ConformanceCtrl', (menu, $scope, $appFhir) ->
   menu.build({}, 'conformance*')
 
-  $fhir.metadata (data)->
+  $appFhir.metadata (data)->
     console.log('metadata', data)
     $scope.resources = [{type: 'Any'}].concat data.rest[0].resource.sort(keyComparator('type')) || []
     delete data.rest
     delete data.text
     $scope.conformance = data
 
-app.controller 'IndexCtrl', (menu, $fhir, $fhirParams, $fhirSearch, $scope, $routeParams) ->
+app.controller 'IndexCtrl', (menu, $appFhir, $appFhirParams, $appFhirSearch, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index_all*', 'transaction', 'document', 'history_all', 'tags_all')
 
   rt = 'Alert'
@@ -132,19 +133,19 @@ app.controller 'IndexCtrl', (menu, $fhir, $fhirParams, $fhirSearch, $scope, $rou
       $scope.searchFilter = ''
     $scope.searchState="search"
 
-  $fhir.profile rt, (data)->
+  $appFhir.profile rt, (data)->
     $scope.profile = data
-    $scope.query = $fhirParams(data)
+    $scope.query = $appFhirParams(data)
 
   $scope.typeFilterSearchParams = (type, filter)->
-    $fhirSearch.typeFilterSearchParams(type, filter)
+    $appFhirSearch.typeFilterSearchParams(type, filter)
 
   $scope.search = ()->
-    $fhir.search rt, $scope.query, (data, s, x, config) ->
+    $appFhir.search rt, $scope.query, (data, s, x, config) ->
         $scope.searchUri = config
         $scope.resources = data.entry || []
 
-app.controller 'ResourcesIndexCtrl', (menu, $fhir, $fhirParams, $fhirSearch, $scope, $routeParams) ->
+app.controller 'ResourcesIndexCtrl', (menu, $appFhir, $appFhirParams, $appFhirSearch, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index*', 'new', 'history_type', 'tags_type')
 
   rt = $routeParams.resourceType
@@ -164,15 +165,15 @@ app.controller 'ResourcesIndexCtrl', (menu, $fhir, $fhirParams, $fhirSearch, $sc
       $scope.searchFilter = ''
     $scope.searchState="search"
 
-  $fhir.profile rt, (data)->
+  $appFhir.profile rt, (data)->
     $scope.profile = data
-    $scope.query = $fhirParams(data)
+    $scope.query = $appFhirParams(data)
 
   $scope.typeFilterSearchParams = (type, filter)->
-    $fhirSearch.typeFilterSearchParams(type, filter)
+    $appFhirSearch.typeFilterSearchParams(type, filter)
 
   $scope.search = ()->
-    $fhir.search rt, $scope.query, (data, s, x, config) ->
+    $appFhir.search rt, $scope.query, (data, s, x, config) ->
         $scope.searchUri = config
         $scope.resources = data.entry || []
 
@@ -197,7 +198,7 @@ initTags = ($scope)->
 
   $scope["add#{k}"] = mkAdder(s) for k,s of schemes
 
-app.controller 'ResourcesNewCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
+app.controller 'ResourcesNewCtrl', (menu, $appFhir, $scope, $routeParams, $location) ->
   menu.build($routeParams, 'conformance', 'index', 'new*')
 
   $scope.resource = {}
@@ -207,17 +208,17 @@ app.controller 'ResourcesNewCtrl', (menu, $fhir, $scope, $routeParams, $location
 
   $scope.save = ->
     tags = $scope.tags.filter((i)-> i.term)
-    $fhir.create rt, $scope.resource.content, tags, ()->
+    $appFhir.create rt, $scope.resource.content, tags, ()->
       $location.path("/resources/#{rt}")
 
   $scope.validate = ()->
     res = $scope.resource.content
     tags = $scope.tags.filter((i)-> i.term)
-    $fhir.validate(rt, null, null, res, tags)
+    $appFhir.validate(rt, null, null, res, tags)
 
 pretifyJson = (str)-> angular.toJson(angular.fromJson(str), true)
 
-app.controller 'ResourceCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
+app.controller 'ResourceCtrl', (menu, $appFhir, $scope, $routeParams, $location) ->
   menu.build($routeParams,'conformance', 'index', 'show*', 'history', 'tags')
 
   rt = $routeParams.resourceType
@@ -225,7 +226,7 @@ app.controller 'ResourceCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
   initTags($scope)
 
   loadResource = ()->
-    $fhir.read rt, id, (contentLoc, res, tags)->
+    $appFhir.read rt, id, (contentLoc, res, tags)->
       $scope.tags = tags
       $scope.resource = { id: id, content: pretifyJson(res) }
       $scope.resourceContentLocation = contentLoc
@@ -237,83 +238,83 @@ app.controller 'ResourceCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
     cl = $scope.resourceContentLocation
     res = $scope.resource.content
     tags = $scope.tags.filter((i)-> i.term)
-    $fhir.update rt, id, cl, res, tags, (data,status,headers,req)->
+    $appFhir.update rt, id, cl, res, tags, (data,status,headers,req)->
       $scope.resourceContentLocation = headers('content-location')
 
   $scope.destroy = ->
     if window.confirm("Destroy #{$scope.resource.id}?")
-      $fhir.delete rt, id, ()-> $location.path("/resources/#{rt}")
+      $appFhir.delete rt, id, ()-> $location.path("/resources/#{rt}")
 
   $scope.removeAllTags = ()->
-    $fhir.removeResourceTags rt, id, ()->
+    $appFhir.removeResourceTags rt, id, ()->
       $scope.tags = []
 
   $scope.affixResourceTags = ()->
-    $fhir.affixResourceTags rt, id, $scope.tags, (tagList)->
+    $appFhir.affixResourceTags rt, id, $scope.tags, (tagList)->
       $scope.tags = tagList.category
 
   $scope.validate = ()->
     cl = $scope.resourceContentLocation
     res = $scope.resource.content
     tags = $scope.tags.filter((i)-> i.term)
-    $fhir.validate(rt, id, cl, res, tags)
+    $appFhir.validate(rt, id, cl, res, tags)
 
-app.controller 'ResourceHistoryCtrl', (menu, $fhir, $scope, $routeParams) ->
+app.controller 'ResourceHistoryCtrl', (menu, $appFhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index', 'show', 'history*')
 
-  $fhir.history $routeParams.resourceType, $routeParams.id, (data) ->
+  $appFhir.history $routeParams.resourceType, $routeParams.id, (data) ->
     $scope.entries = data.entry
     $scope.history  = data
     delete $scope.history.entry
 
-app.controller 'ResourcesHistoryCtrl', (menu, $fhir, $scope, $routeParams) ->
+app.controller 'ResourcesHistoryCtrl', (menu, $appFhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index', 'history_type*')
 
-  $fhir.history_type $routeParams.resourceType, (data) ->
+  $appFhir.history_type $routeParams.resourceType, (data) ->
     $scope.entries = data.entry
     $scope.history  = data
     delete $scope.history.entry
 
-app.controller 'HistoryCtrl', (menu, $fhir, $scope, $routeParams) ->
+app.controller 'HistoryCtrl', (menu, $appFhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index_all', 'history_all*')
 
-  $fhir.history_all (data)->
+  $appFhir.history_all (data)->
     $scope.entries = data.entry
     $scope.history  = data
     delete $scope.history.entry
 
-app.controller 'TagsCtrl', (menu, $fhir, $scope, $routeParams) ->
+app.controller 'TagsCtrl', (menu, $appFhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index_all', 'tags_all*')
 
-  $fhir.tags_all (data)->
+  $appFhir.tags_all (data)->
     $scope.tags = data
 
-app.controller 'ResourcesTagsCtrl', (menu, $fhir, $scope, $routeParams) ->
+app.controller 'ResourcesTagsCtrl', (menu, $appFhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index', 'tags_type*')
 
-  $fhir.tags_type $routeParams.resourceType, (data)->
+  $appFhir.tags_type $routeParams.resourceType, (data)->
     $scope.tags = data
 
-app.controller 'ResourceTagsCtrl', (menu, $fhir, $scope, $routeParams) ->
+app.controller 'ResourceTagsCtrl', (menu, $appFhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index', 'show', 'tags*')
 
-  $fhir.tags $routeParams.resourceType, $routeParams.id, (data)->
+  $appFhir.tags $routeParams.resourceType, $routeParams.id, (data)->
     $scope.tags = data
 
-app.controller 'TransactionCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
+app.controller 'TransactionCtrl', (menu, $appFhir, $scope, $routeParams, $location) ->
   menu.build($routeParams, 'conformance', 'index_all', 'transaction*')
 
   $scope.bundle = {}
 
   $scope.save = ->
-    $fhir.transaction $scope.bundle.content, ()->
+    $appFhir.transaction $scope.bundle.content, ()->
       $location.path("/resources/Any")
 
-app.controller 'DocumentCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
+app.controller 'DocumentCtrl', (menu, $appFhir, $scope, $routeParams, $location) ->
   menu.build($routeParams, 'conformance', 'index_all', 'document*')
 
   $scope.bundle = {}
 
   $scope.save = ->
-    $fhir.document $scope.bundle.content, ()->
+    $appFhir.document $scope.bundle.content, ()->
       $location.path("/resources/Any")

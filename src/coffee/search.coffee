@@ -5,7 +5,7 @@ keyComparator = (key)->
      when a[key] > b[key] then 1
      else 0
 
-angular.module('ng-fhir').provider '$fhirSearch', ()->
+angular.module('app-fhir').provider '$appFhirSearch', ()->
   cache = {
     type: []
     param: {}
@@ -13,14 +13,14 @@ angular.module('ng-fhir').provider '$fhirSearch', ()->
     search: {}
   }
 
-  $get: ($fhir, $fhirParams)->
+  $get: ($appFhir, $appFhirParams)->
 
-    $fhir.metadata (data)->
+    $appFhir.metadata (data)->
       cache.type = (data.rest[0].resource.sort(keyComparator('type')) || []).map (i)-> i.type
 
     fillCache = (type)->
-      $fhir.profile type, (data)->
-        profile = $fhirParams(data)
+      $appFhir.profile type, (data)->
+        profile = $appFhirParams(data)
         cache.param[type] = profile.searchParam
         cache.chain[type] = profile.chainType
 

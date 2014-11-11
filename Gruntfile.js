@@ -66,7 +66,7 @@ module.exports = function (grunt) {
           "./bower_components/codemirror/lib/codemirror.js",
           "./bower_components/codemirror/mode/javascript/javascript.js",
           "./bower_components/angular-ui-codemirror/ui-codemirror.js",
-          "./bower_components/ng-fhir/ng-fhir.js"
+          "./bower_components/fhir.js/dist/ngFhir.js"
         ],
         dest: buildDir + 'js/lib.js'
       }

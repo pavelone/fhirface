@@ -153,7 +153,7 @@ app.controller 'IndexCtrl', (menu, $fhir, $appFhirParams, $appFhirSearch, $scope
       $scope.searchUri = config
       $scope.resources = data.entry || []
 
-app.controller 'ResourcesIndexCtrl', (menu, $appFhir, $appFhirParams, $appFhirSearch, $scope, $routeParams) ->
+app.controller 'ResourcesIndexCtrl', (menu, $fhir, $appFhirParams, $appFhirSearch, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index*', 'new', 'history_type', 'tags_type')
 
   rt = $routeParams.resourceType
@@ -173,7 +173,7 @@ app.controller 'ResourcesIndexCtrl', (menu, $appFhir, $appFhirParams, $appFhirSe
       $scope.searchFilter = ''
     $scope.searchState="search"
 
-  $appFhir.profile rt, (data)->
+  $fhir.profile type: rt, success: (data)->
     $scope.profile = data
     $scope.query = $appFhirParams(data)
 
@@ -181,7 +181,7 @@ app.controller 'ResourcesIndexCtrl', (menu, $appFhir, $appFhirParams, $appFhirSe
     $appFhirSearch.typeFilterSearchParams(type, filter)
 
   $scope.search = ()->
-    $appFhir.search rt, $scope.query, (data, s, x, config) ->
+    $fhir.search type: rt, query: {}, success: (data, s, x, config) ->
         $scope.searchUri = config
         $scope.resources = data.entry || []
 
@@ -206,7 +206,7 @@ initTags = ($scope)->
 
   $scope["add#{k}"] = mkAdder(s) for k,s of schemes
 
-app.controller 'ResourcesNewCtrl', (menu, $appFhir, $scope, $routeParams, $location) ->
+app.controller 'ResourcesNewCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
   menu.build($routeParams, 'conformance', 'index', 'new*')
 
   $scope.resource = {}
@@ -216,7 +216,7 @@ app.controller 'ResourcesNewCtrl', (menu, $appFhir, $scope, $routeParams, $locat
 
   $scope.save = ->
     tags = $scope.tags.filter((i)-> i.term)
-    $appFhir.create rt, $scope.resource.content, tags, ()->
+    $fhir.create entry: {content: angular.fromJson($scope.resource.content), category: tags}, success: ()->
       $location.path("/resources/#{rt}")
 
   $scope.validate = ()->
@@ -226,7 +226,7 @@ app.controller 'ResourcesNewCtrl', (menu, $appFhir, $scope, $routeParams, $locat
 
 pretifyJson = (str)-> angular.toJson(angular.fromJson(str), true)
 
-app.controller 'ResourceCtrl', (menu, $appFhir, $scope, $routeParams, $location) ->
+app.controller 'ResourceCtrl', (menu, $fhir, $appFhir, $scope, $routeParams, $location) ->
   menu.build($routeParams,'conformance', 'index', 'show*', 'history', 'tags')
 
   rt = $routeParams.resourceType
@@ -234,11 +234,11 @@ app.controller 'ResourceCtrl', (menu, $appFhir, $scope, $routeParams, $location)
   initTags($scope)
 
   loadResource = ()->
-    $appFhir.read rt, id, (contentLoc, res, tags)->
-      $scope.tags = tags
-      $scope.resource = { id: id, content: pretifyJson(res) }
-      $scope.resourceContentLocation = contentLoc
-      throw "content location required" unless contentLoc
+    $fhir.read id: (rt + '/' + id), success: (data)->
+      $scope.tags = data.category
+      $scope.resource = { id: id, content: pretifyJson(data.content) }
+      $scope.resourceContentLocation = data.id
+      throw "content location required" unless $scope.resourceContentLocation
 
   loadResource()
 
@@ -246,12 +246,13 @@ app.controller 'ResourceCtrl', (menu, $appFhir, $scope, $routeParams, $location)
     cl = $scope.resourceContentLocation
     res = $scope.resource.content
     tags = $scope.tags.filter((i)-> i.term)
-    $appFhir.update rt, id, cl, res, tags, (data,status,headers,req)->
-      $scope.resourceContentLocation = headers('content-location')
+    $fhir.update entry: {id: cl, content: angular.fromJson(res), category: tags}, success: (data)->
+      $scope.resourceContentLocation = data.id
+      throw "content location required" unless $scope.resourceContentLocation
 
   $scope.destroy = ->
     if window.confirm("Destroy #{$scope.resource.id}?")
-      $appFhir.delete rt, id, ()-> $location.path("/resources/#{rt}")
+      $fhir.delete entry: {id: $scope.resourceContentLocation}, success: ()-> $location.path("/resources/#{rt}")
 
   $scope.removeAllTags = ()->
     $appFhir.removeResourceTags rt, id, ()->

@@ -255,11 +255,12 @@ app.controller 'ResourceCtrl', (menu, $fhir, $appFhir, $scope, $routeParams, $lo
       $fhir.delete entry: {id: $scope.resourceContentLocation}, success: ()-> $location.path("/resources/#{rt}")
 
   $scope.removeAllTags = ()->
-    $appFhir.removeResourceTags rt, id, ()->
+    $fhir.removeTags type: rt, id: id, success: ()->
       $scope.tags = []
 
   $scope.affixResourceTags = ()->
-    $appFhir.affixResourceTags rt, id, $scope.tags, (tagList)->
+    $fhir.affixTags type: rt, id: id, tags: $scope.tags, succes: (tagList)->
+      console.log(tagList)
       $scope.tags = tagList.category
 
   $scope.validate = ()->

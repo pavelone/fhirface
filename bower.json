@@ -13,6 +13,6 @@
     "fontawesome": "latest",
     "angular-local-storage": "latest",
     "angular-ui-codemirror": "latest",
-    "fhir.js": "0.0.5"
+    "fhir.js": "FHIR/fhir.js#master"
   }
 }

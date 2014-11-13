@@ -307,13 +307,16 @@ app.controller 'ResourceCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
     $fhir.validate entry: {content: angular.fromJson(res), category: tags}, success: ()->
       #alert('Valid')
 
-app.controller 'ResourceHistoryCtrl', (menu, $appFhir, $scope, $routeParams) ->
+app.controller 'ResourceHistoryCtrl', (menu, $scope, $routeParams, $fhir) ->
   menu.build($routeParams, 'conformance', 'index', 'show', 'history*')
 
-  $appFhir.history $routeParams.resourceType, $routeParams.id, (data) ->
-    $scope.entries = data.entry
-    $scope.history  = data
-    delete $scope.history.entry
+  $fhir.history
+    type: $routeParams.resourceType
+    id: $routeParams.id
+    success: (data)->
+      $scope.entries = data.entry
+      $scope.history = data
+      delete $scope.history.entry
 
 app.controller 'ResourcesHistoryCtrl', (menu, $appFhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index', 'history_type*')

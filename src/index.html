@@ -40,13 +40,16 @@
       </li>
     </ul>
   </div>
+  <div ng-if="fhir.error.resourceType!='OperationOutcome'">
+    {{fhir.error}}
+  </div>
 </div>
 
 <div ng-view class="view"></div>
 
 <div class="notifications" ng-show="fhir.notifications.length > 0">
   <div ng-click="fhir.removeNotification(note)" class="notification" ng-repeat="note in fhir.notifications">
-    {{note.method}}: {{note.url}} - {{note.status}} <i class="fa fa-close">x</i>
+    {{note.method}}: {{note.url}} - {{note.status}} <i class="fa fa-close"/i>
   </div>
 </div>
 

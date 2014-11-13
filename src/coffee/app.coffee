@@ -67,13 +67,48 @@ identity = (x)-> x
 
 rm = (x, xs)-> xs.splice(xs.indexOf(x),1)
 
-app.config ($fhirProvider)->
-  $fhirProvider.baseUrl = baseUrl()
+NOTIFICATION_REMOVE_TIMEOUT = 2000
+
+magic = {
+  active: 0
+  notifications: []
+  error: null
+  removeNotification: (i)->
+    magic.notifications.splice(magic.notifications.indexOf(i), 1)
+}
 
 app.run ($rootScope, $appFhir, menu)->
-  $rootScope.fhir = $appFhir
+#  $rootScope.fhir = $appFhir
+  magic = $appFhir
+  $rootScope.fhir = magic
   $rootScope.menu = menu
 
+app.config ($fhirProvider, $httpProvider)->
+  $fhirProvider.baseUrl = baseUrl()
+  $httpProvider.interceptors.push ($q, $timeout)->
+    {
+      request: (config) ->
+        console.log("request ", config)
+        note = angular.copy(config)
+        unless note.url.match(/^\/views\//)
+          note.status = "..."
+          note.config = config
+          magic.notifications.push(note)
+          magic.active += 1
+          $timeout (()-> magic.removeNotification(note)), NOTIFICATION_REMOVE_TIMEOUT
+        config
+      response: (response) ->
+        console.log("responce: ", response)
+        magic.active -= 1
+        (magic.notifications.filter((n) -> n.config == response.config)[0] || {}).status = response.status
+        response
+      responseError: (rejection) ->
+        console.log("error: ", rejection)
+        magic.active -= 1
+        (magic.notifications.filter((n) -> n.config == rejection.config)[0] || {}).status = rejection.status
+        magic.error = rejection.data || "Server error #{rejection.status} while loading: #{rejection.config.url}"
+        $q.reject(rejection)
+    }
 cropUuid = (id)->
   return "ups no uuid :(" unless id
   sid = id.substring(id.length - 6, id.length)
@@ -222,11 +257,12 @@ app.controller 'ResourcesNewCtrl', (menu, $fhir, $scope, $routeParams, $location
   $scope.validate = ()->
     res = $scope.resource.content
     tags = $scope.tags.filter((i)-> i.term)
-    $appFhir.validate(rt, null, null, res, tags)
+    $fhir.validate entry: {content: angular.fromJson(res), category: tags}, success: ()->
+      #alert('Valid')
 
 pretifyJson = (str)-> angular.toJson(angular.fromJson(str), true)
 
-app.controller 'ResourceCtrl', (menu, $fhir, $appFhir, $scope, $routeParams, $location) ->
+app.controller 'ResourceCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
   menu.build($routeParams,'conformance', 'index', 'show*', 'history', 'tags')
 
   rt = $routeParams.resourceType
@@ -267,7 +303,9 @@ app.controller 'ResourceCtrl', (menu, $fhir, $appFhir, $scope, $routeParams, $lo
     cl = $scope.resourceContentLocation
     res = $scope.resource.content
     tags = $scope.tags.filter((i)-> i.term)
-    $appFhir.validate(rt, id, cl, res, tags)
+    console.log($fhir)
+    $fhir.validate entry: {content: angular.fromJson(res), category: tags}, success: ()->
+      #alert('Valid')
 
 app.controller 'ResourceHistoryCtrl', (menu, $appFhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index', 'show', 'history*')

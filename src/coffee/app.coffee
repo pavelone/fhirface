@@ -318,21 +318,24 @@ app.controller 'ResourceHistoryCtrl', (menu, $scope, $routeParams, $fhir) ->
       $scope.history = data
       delete $scope.history.entry
 
-app.controller 'ResourcesHistoryCtrl', (menu, $appFhir, $scope, $routeParams) ->
+app.controller 'ResourcesHistoryCtrl', (menu, $scope, $routeParams, $fhir) ->
   menu.build($routeParams, 'conformance', 'index', 'history_type*')
 
-  $appFhir.history_type $routeParams.resourceType, (data) ->
-    $scope.entries = data.entry
-    $scope.history  = data
-    delete $scope.history.entry
+  $fhir.history
+    type: $routeParams.resourceType
+    success: (data)->
+      $scope.entries = data.entry
+      $scope.history = data
+      delete $scope.history.entry
 
-app.controller 'HistoryCtrl', (menu, $appFhir, $scope, $routeParams) ->
+app.controller 'HistoryCtrl', (menu, $scope, $routeParams, $fhir) ->
   menu.build($routeParams, 'conformance', 'index_all', 'history_all*')
 
-  $appFhir.history_all (data)->
-    $scope.entries = data.entry
-    $scope.history  = data
-    delete $scope.history.entry
+  $fhir.history
+    success: (data)->
+      $scope.entries = data.entry
+      $scope.history = data
+      delete $scope.history.entry
 
 app.controller 'TagsCtrl', (menu, $appFhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index_all', 'tags_all*')

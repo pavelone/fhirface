@@ -127,6 +127,13 @@ module.exports = function (grunt) {
    connect: { default: { port: 8080, base: 'dist' } }
   });
 
-  grunt.registerTask('build', ['clean','concat','webpack','ngtemplates', 'less', 'copy']);
+  grunt.registerTask('build', [
+    'clean',
+    'concat',
+    'webpack',
+    'ngtemplates',
+    'less',
+    'copy'
+  ]);
   grunt.registerTask('server', ['connect']);
 };

@@ -14,12 +14,13 @@ pom.xml.asc
 **/#*#
 
 # JavaScript Single Page Application.
+.lein-env
 .sass-cache
 .tmp
+/dist.tar.gz
 app/bower_components
+bower_components
 dist
+lib/
 node_modules
 resources/public
-lib/
-.lein-env
-bower_components

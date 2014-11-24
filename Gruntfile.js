@@ -115,6 +115,14 @@ module.exports = function (grunt) {
       }
     },
     watch: {
+      deploy: {
+        files: ['src/**/*'],
+        tasks: ['build', 'deployToFhirplace'],
+        options: {
+          events: ['changed', 'added'],
+          nospawn: true
+        }
+      },
       main: {
         files: ['src/**/*'],
         tasks: ['build'],
@@ -127,6 +135,16 @@ module.exports = function (grunt) {
    connect: { default: { port: 8080, base: 'dist' } }
   });
 
+  grunt.registerTask('deployToFhirplace', 'Deploy to Fhirplace', function() {
+    var fhirJson = require('./fhir.json');
+    var host = fhirJson.server;
+    if (!host) {
+      host = 'http://try-fhirplace.hospital-systems.com/api/app';
+    }
+    grunt.log.writeln('Deploy to ' + host);
+    require('fhirbase.js')();
+  });
+
   grunt.registerTask('build', [
     'clean',
     'concat',
@@ -135,5 +153,6 @@ module.exports = function (grunt) {
     'less',
     'copy'
   ]);
+
   grunt.registerTask('server', ['connect']);
 };

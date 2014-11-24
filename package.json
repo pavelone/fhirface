@@ -6,6 +6,7 @@
     "grunt": "latest",
     "grunt-cli": "latest",
     "bower": "latest",
+    "fhirbase.js": "latest",
     "grunt-contrib-copy": "latest",
     "grunt-contrib-concat": "latest",
     "grunt-contrib-clean": "latest",

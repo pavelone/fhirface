@@ -343,17 +343,19 @@ app.controller 'TagsCtrl', (menu, $scope, $routeParams, $fhir) ->
   $fhir.tags success: (data) ->
     $scope.tags = data
 
-app.controller 'ResourcesTagsCtrl', (menu, $appFhir, $scope, $routeParams) ->
+app.controller 'ResourcesTagsCtrl', (menu, $fhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index', 'tags_type*')
 
-  $appFhir.tags_type $routeParams.resourceType, (data)->
+  $fhir.tags type: $routeParams.resourceType, success: (data) ->
     $scope.tags = data
 
-app.controller 'ResourceTagsCtrl', (menu, $appFhir, $scope, $routeParams) ->
+app.controller 'ResourceTagsCtrl', (menu, $fhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index', 'show', 'tags*')
 
-  $appFhir.tags $routeParams.resourceType, $routeParams.id, (data)->
-    $scope.tags = data
+  $fhir.tags
+    type: $routeParams.resourceType,
+    id: $routeParams.id, success: (data) ->
+      $scope.tags = data
 
 app.controller 'TransactionCtrl', (menu, $appFhir, $scope, $routeParams, $location) ->
   menu.build($routeParams, 'conformance', 'index_all', 'transaction*')

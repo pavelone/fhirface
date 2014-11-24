@@ -357,20 +357,19 @@ app.controller 'ResourceTagsCtrl', (menu, $fhir, $scope, $routeParams) ->
     id: $routeParams.id, success: (data) ->
       $scope.tags = data
 
-app.controller 'TransactionCtrl', (menu, $appFhir, $scope, $routeParams, $location) ->
+app.controller 'TransactionCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
   menu.build($routeParams, 'conformance', 'index_all', 'transaction*')
 
   $scope.bundle = {}
-
   $scope.save = ->
-    $appFhir.transaction $scope.bundle.content, ()->
+    $fhir.transaction bundle: $scope.bundle.content, success: ->
       $location.path("/resources/Any")
 
-app.controller 'DocumentCtrl', (menu, $appFhir, $scope, $routeParams, $location) ->
+app.controller 'DocumentCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
   menu.build($routeParams, 'conformance', 'index_all', 'document*')
 
   $scope.bundle = {}
 
   $scope.save = ->
-    $appFhir.document $scope.bundle.content, ()->
+    $fhir.document bundle: $scope.bundle.content, success: ->
       $location.path("/resources/Any")

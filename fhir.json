@@ -1,6 +1,7 @@
 {
- "name":"fhirface",
- "title": "fhirface",
- "version": "0.1",
- "description": "Generic FHIR client"
+  "description": "Generic FHIR client",
+  "name":"fhirface",
+  "image": "fire",
+  "title": "fhirface",
+  "version": "0.1"
 }

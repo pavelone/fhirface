@@ -340,7 +340,7 @@ app.controller 'HistoryCtrl', (menu, $scope, $routeParams, $fhir) ->
 app.controller 'TagsCtrl', (menu, $scope, $routeParams, $fhir) ->
   menu.build($routeParams, 'conformance', 'index_all', 'tags_all*')
 
-  $fhir.tagsAll success: (data)->
+  $fhir.tags success: (data) ->
     $scope.tags = data
 
 app.controller 'ResourcesTagsCtrl', (menu, $appFhir, $scope, $routeParams) ->

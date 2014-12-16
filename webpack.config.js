@@ -1,4 +1,5 @@
 var etx = require("extract-text-webpack-plugin");
+var webpack = require("webpack");
 
 module.exports = {
   context: __dirname + "/src",
@@ -26,7 +27,10 @@ module.exports = {
     ]
   },
   plugins: [
-    new etx("app.css", {})
+    new etx("app.css", {}),
+    new webpack.DefinePlugin({
+      BASEURL: JSON.stringify(process.env.BASEURL)
+    })
   ],
   resolve: { extensions: ["", ".webpack.js", ".web.js", ".js", ".coffee", ".less"]}
 };

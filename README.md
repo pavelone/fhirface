@@ -28,10 +28,14 @@ git clone https://github.com/fhirbase/fhirface
 cd fhirface
 # install npm modules
 npm install
-# install bower packages
-`npm bin`/bower install
-#build app into <dir-to-build> directory
-env PREFIX=<dir-to-build> `npm bin`/grunt build
+#build app into ./dist
+env BASEURL=http://fhirplace.health-samurai.io npm run-script build
+
+#run def server
+env PORT=8080 BASEURL=http://fhirplace.health-samurai.io npm start
+
+#publish
+env PORT=8080 BASEURL=http://fhirplace.health-samurai.io npm run-script fhir
 ```
 
 
@@ -40,7 +44,7 @@ directory and open index.html file.
 
 ## Service
 
-> All premium services from developers of Fhirbase projects 
+> All premium services from developers of Fhirbase projects
 > should be requested from Choice Hospital Systems (http://Choice-HS.com)
 
 
@@ -54,25 +58,8 @@ directory and open index.html file.
 * automate tasks with grunt
 
 
-## Directory structure
-
-```
-coffee/       # code
-less/         # styles
-lib/          # bower  cache
-views/        # angularjs templates
-.bowerrc
-.gitignore
-Gruntfile.js  # grunt tasks
-README.md
-bower.json    # bower packages config
-index.html    # main page (entry point)
-package.json  # npm packages
-```
-
 ## TODO
 
-* tags support
 * authorization
 * better profile visualization
 

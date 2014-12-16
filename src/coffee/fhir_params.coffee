@@ -132,30 +132,33 @@ _mkSearchParam = (p)->
     else
       null
 
+_filter_values = (values)->
+  values.map((i)-> i.value && i.value.trim()).filter(identity)
+
 _stringToQuery = (p)->
-  values = p.values.map((i)-> i.value).map($.trim).filter(identity)
+  values = _filter_values(p.values)
   return null if values.length == 0
   "#{p.name}#{p.modifier}=#{values.join(',')}"
 
 _referenceToQuery = (p)->
-  values = p.values.map((i)-> i.value).map($.trim).filter(identity)
+  values = _filter_values(p.values)
   return null if values.length == 0
   "#{p.name}#{p.modifier}=#{values.join(',')}"
 
 _tokenToQuery= (p)->
   values = p.values
-    .filter((i)-> $.trim(i.code))
+    .filter((i)-> i.code && i.code.trim())
     .map((i)-> [i.system, i.code].filter(identity).join('|'))
   return null if values.length == 0
   "#{p.name}#{p.modifier}=#{values.join(',')}"
 
 _dateToQuery= (p)->
-  values = p.values.map((i)-> i.value).map($.trim).filter(identity)
+  values = _filter_values(p.values)
   return null if values.length == 0
   "#{p.name}=#{p.operation}#{values.join(',')}"
 
 _numberToQuery= (p)->
-  values = p.values.map((i)-> i.value).map($.trim).filter(identity)
+  values = _filter_values(p.values)
   return null if values.length == 0
   "#{p.name}=#{p.operation}#{values.join(',')}"
 

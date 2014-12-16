@@ -1,0 +1,8 @@
+require('../views/conformance.html')
+require('../views/document.html')
+require('../views/history.html')
+require('../views/index.html')
+require('../views/new.html')
+require('../views/show.html')
+require('../views/tags.html')
+require('../views/transaction.html')

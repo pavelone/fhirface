@@ -3,26 +3,28 @@
   "version": "0.0.0",
   "dependencies": {},
   "devDependencies": {
-    "grunt": "latest",
-    "grunt-cli": "latest",
+    "fhirbase.js": "0.0.3",
     "bower": "latest",
-    "fhirbase.js": "latest",
-    "grunt-contrib-copy": "latest",
-    "grunt-contrib-concat": "latest",
-    "grunt-contrib-clean": "latest",
-    "grunt-contrib-less": "latest",
-    "grunt-contrib-watch": "latest",
-    "grunt-connect": "latest",
-    "webpack": "latest",
-    "grunt-webpack": "latest",
     "coffee": "latest",
-    "grunt-angular-templates": "latest",
-    "coffee-loader": "latest"
+    "coffee-loader": "latest",
+    "css-loader": "latest",
+    "html-loader": "latest",
+    "less-loader": "latest",
+    "file-loader": "latest",
+    "url-loader": "latest",
+    "ng-cache-loader": "latest",
+    "style-loader": "latest",
+    "webpack": "latest",
+    "extract-text-webpack-plugin": "latest",
+    "webpack-dev-server": "latest"
   },
   "engines": {
-    "node": ">=0.8.0"
+    "node": ">=0.10.0"
   },
   "scripts": {
-    "test": "grunt build"
+    "install": "bower prune && bower install",
+    "start": "webpack-dev-server --port $PORT --progress --colors",
+    "build": "npm install && rm -rf dist && webpack --progress --colors",
+    "fhir":  "npm install && rm -rf dist && webpack --progress --colors && `npm bin`/fhirbase"
   }
 }

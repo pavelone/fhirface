@@ -1,20 +1,14 @@
-'use strict'
+require('file?name=index.html!../index.html')
+require('file?name=fhir.json!../fhir.json')
+require('../less/app.less')
 
-BASE_URL = null
-baseUrl = ()->
-  BASE_URL || "#{window.location.protocol}//#{window.location.host}"
-
+app = require('./module')
 require('./fhir')
+require('./views')
 
-app = angular.module 'fhirface', [
-  'ngCookies',
-  'ngAnimate',
-  'ngSanitize',
-  'ngRoute',
-  'ui.codemirror',
-  'app-fhir',
-  'ng-fhir'
-], ($routeProvider) ->
+baseUrl = require('./baseurl')
+
+app.config ($routeProvider) ->
     $routeProvider
       .when '/',
         templateUrl: '/views/conformance.html'
@@ -23,40 +17,40 @@ app = angular.module 'fhirface', [
         templateUrl: '/views/conformance.html'
         controller: 'ConformanceCtrl'
       .when '/resources/Any',
-        templateUrl: '/views/resources/index.html'
+        templateUrl: '/views/index.html'
         controller: 'IndexCtrl'
       .when '/resources/Any/history',
-        templateUrl: '/views/resources/history.html'
+        templateUrl: '/views/history.html'
         controller: 'HistoryCtrl'
       .when '/resources/Any/tags',
-        templateUrl: '/views/resources/tags.html'
+        templateUrl: '/views/tags.html'
         controller: 'TagsCtrl'
       .when '/resources/Any/transaction',
-        templateUrl: '/views/resources/transaction.html'
+        templateUrl: '/views/transaction.html'
         controller: 'TransactionCtrl'
       .when '/resources/Any/document',
-        templateUrl: '/views/resources/document.html'
+        templateUrl: '/views/document.html'
         controller: 'DocumentCtrl'
       .when '/resources/:resourceType',
-        templateUrl: '/views/resources/index.html'
+        templateUrl: '/views/index.html'
         controller: 'ResourcesIndexCtrl'
       .when '/resources/:resourceType/history',
-        templateUrl: '/views/resources/history.html'
+        templateUrl: '/views/history.html'
         controller: 'ResourcesHistoryCtrl'
       .when '/resources/:resourceType/tags',
-        templateUrl: '/views/resources/tags.html'
+        templateUrl: '/views/tags.html'
         controller: 'ResourcesTagsCtrl'
       .when '/resources/:resourceType/new',
-        templateUrl: '/views/resources/new.html'
+        templateUrl: '/views/new.html'
         controller: 'ResourcesNewCtrl'
       .when '/resources/:resourceType/:id',
-        templateUrl: '/views/resources/show.html'
+        templateUrl: '/views/show.html'
         controller: 'ResourceCtrl'
       .when '/resources/:resourceType/:id/history',
-        templateUrl: '/views/resources/history.html'
+        templateUrl: '/views/history.html'
         controller: 'ResourceHistoryCtrl'
       .when '/resources/:resourceType/:id/tags',
-        templateUrl: '/views/resources/tags.html'
+        templateUrl: '/views/tags.html'
         controller: 'ResourceTagsCtrl'
       .otherwise
         redirectTo: '/'

@@ -2,18 +2,17 @@ angular.module('app-fhir', [])
 
 NOTIFICATION_REMOVE_TIMEOUT = 2000
 
-BASE_PREFIX = '/' # if u have base FHIR url like http://one.com/two set BASE_PREFIX to "/two"
-#BASE_PREFIX = 'http://try-fhirplace.hospital-systems.com/' # if u have base FHIR url like http://one.com/two set BASE_PREFIX to "/two"
+baseUrl = require('./baseurl')
 
 angular.module('app-fhir').provider '$appFhir', ()->
   buildTags = (tags)->
-    tags.filter((i)-> $.trim(i.term))
+    tags.filter((i)-> i.term && i.term.trim())
       .map((i)-> "#{i.term}; scheme=\"#{i.scheme}\"; label=\"#{i.label}\"")
       .join(",")
 
   addKey = (acc, str)->
     return unless str
-    pair = str.split("=").map($.trim)
+    pair = str.split("=").map((i)-> i && i.trim())
     val = pair[1].replace(/(^"|"$)/g,'')
     acc[pair[0]] = val if val
     acc
@@ -21,12 +20,14 @@ angular.module('app-fhir').provider '$appFhir', ()->
   extractTags = (categoryHeader)->
     return [] unless categoryHeader
     categoryHeader.split(',').map (x)->
-      parts = $.trim(x).split(';').map($.trim)
+      parts = x.trim().split(';').map((i)-> i && i.trim())
       if parts[0]
         acc = {term: parts[0]}
         addKey(acc, parts[1])
         addKey(acc, parts[2])
         acc
+
+  BASE_PREFIX = "#{baseUrl()}/"
 
   $get: ($http, $timeout)->
     prov = {
@@ -62,7 +63,7 @@ angular.module('app-fhir').provider '$appFhir', ()->
         http(method: 'POST', url: uri).success(cb)
       profile: (rt, cb)->
         # TODO: use conformance href
-        http(method: 'GET', url: "/Profile/#{rt}").success(cb)
+        http(method: 'GET', url: "#{BASE_PREFIX}/Profile/#{rt}").success(cb)
       # query should be instance of fhirParam
       search: (rt, query, cb)->
         uri = "#{BASE_PREFIX}#{rt}/_search?#{query.toQueryString()}"

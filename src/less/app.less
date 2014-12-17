@@ -295,12 +295,16 @@ body {
 }
 .prm {
   vertical-align: top;
+  background-color: #f8f8f8;
   &.prm-ttl {
     background: #eee;
     .lbl {
       text-align: left;
       min-width: 252px;
       margin-left: 1px;
+      &.param {
+        min-width: 200px;
+      }
     }
   }
   .c1,.c2,.c4,.c8,.c16 {
@@ -392,13 +396,24 @@ body {
   }
 }
 .srch-box {
+  .row {
+    margin:0;
+  }
   .ttl {
     border-bottom: 1px solid #ddd;
     padding: 10px;
     background-color: #eee;
   }
+  pre {
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+  }
   min-height: 20px;
   margin-bottom: 20px;
+  border: 1px solid #ddd;
   // border: 1px solid #e3e3e3;
   // border-radius: 4px;
   // -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.05);

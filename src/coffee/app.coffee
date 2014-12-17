@@ -82,7 +82,6 @@ app.config ($fhirProvider, $httpProvider)->
   $httpProvider.interceptors.push ($q, $timeout)->
     {
       request: (config) ->
-        console.log("request ", config)
         note = angular.copy(config)
         unless note.url.match(/^\/views\//)
           note.status = "..."
@@ -92,12 +91,11 @@ app.config ($fhirProvider, $httpProvider)->
           $timeout (()-> magic.removeNotification(note)), NOTIFICATION_REMOVE_TIMEOUT
         config
       response: (response) ->
-        console.log("responce: ", response)
         magic.active -= 1
         (magic.notifications.filter((n) -> n.config == response.config)[0] || {}).status = response.status
         response
       responseError: (rejection) ->
-        console.log("error: ", rejection)
+        console.error("error: ", rejection)
         magic.active -= 1
         (magic.notifications.filter((n) -> n.config == rejection.config)[0] || {}).status = rejection.status
         magic.error = rejection.data || "Server error #{rejection.status} while loading: #{rejection.config.url}"
@@ -115,6 +113,34 @@ app.filter 'urlFor', ()->
     parts = res.id.split(/\//)
     id = parts[parts.length - 1]
     "#/resources/#{res.content.resourceType}/#{id}"
+
+_getByXpath = (acc, entry, xpath)->
+  if xpath.length < 1 and  entry?
+    acc.push(entry)
+  else
+    key = xpath[0]
+    val = entry[key]
+    newpath = xpath.slice(1, xpath.length)
+    if val?
+      if angular.isArray(val)
+        _getByXpath(acc, aval, newpath) for aval in val
+      else if angular.isObject(val)
+        _getByXpath(acc, val, newpath)
+
+_searchPreview = (entry, params)->
+  res = []
+  for p in params
+    if p.xpath
+      path = p.xpath.split('/')
+      path.shift()
+      acc = []
+      _getByXpath(acc,entry.content, path)
+      res.push "#{p.xpath}: #{JSON.stringify(acc)}"
+  res.join('; ')
+
+app.filter 'searchPreview', ()->
+  (entry, query)->
+    _searchPreview(entry, query.params)
 
 cropId = (id)->
   return "ups no uuid :(" unless id
@@ -143,12 +169,12 @@ app.controller 'ConformanceCtrl', (menu, $scope, $fhir) ->
   menu.build({}, 'conformance*')
 
   $fhir.conformance success: (data)->
-    console.log('metadata', data)
     $scope.resources = [{type: 'Any'}].concat data.rest[0].resource.sort(keyComparator('type')) || []
     delete data.rest
     delete data.text
     $scope.conformance = data
 
+# FIXME: this controller do not work
 app.controller 'IndexCtrl', (menu, $fhir, $appFhirParams, $appFhirSearch, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index_all*', 'transaction', 'document', 'history_all', 'tags_all')
 
@@ -178,11 +204,10 @@ app.controller 'IndexCtrl', (menu, $fhir, $appFhirParams, $appFhirSearch, $scope
 
   $scope.search = ()->
     $fhir.search type: rt, query: {}, success: (data, s, x, config)->
-      console.log(data)
-      $scope.searchUri = config
+      console.log($scope.searchSummary)
       $scope.resources = data.entry || []
 
-app.controller 'ResourcesIndexCtrl', (menu, $fhir, $appFhirParams, $appFhirSearch, $scope, $routeParams) ->
+app.controller 'ResourcesIndexCtrl', (menu, $fhir, $appFhirParams, $appFhirSearch, $appFhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index*', 'new', 'history_type', 'tags_type')
 
   rt = $routeParams.resourceType
@@ -190,7 +215,6 @@ app.controller 'ResourcesIndexCtrl', (menu, $fhir, $appFhirParams, $appFhirSearc
   $scope.searchResourceType = rt
   $scope.searchState = 'search'
   $scope.searchFilter = ''
-  $scope.query = {searchParam: []}
 
   $scope.addParam = (p)->
     if $scope.searchState == 'addSortParam'
@@ -205,14 +229,20 @@ app.controller 'ResourcesIndexCtrl', (menu, $fhir, $appFhirParams, $appFhirSearc
   $fhir.profile type: rt, success: (data)->
     $scope.profile = data
     $scope.query = $appFhirParams(data)
+    $scope.search()
 
   $scope.typeFilterSearchParams = (type, filter)->
     $appFhirSearch.typeFilterSearchParams(type, filter)
 
+  # TODO: refactor to fhir.js api
   $scope.search = ()->
-    $fhir.search type: rt, query: {}, success: (data, s, x, config) ->
-        $scope.searchUri = config
-        $scope.resources = data.entry || []
+    unless $scope.query
+      console.error('Search query not initailized')
+      return
+    start = new Date()
+    $appFhir.search rt, $scope.query, (data, s, x, config)->
+      $scope.searchSummary =  {title: data.title,  time: (new Date() - start)}
+      $scope.resources = data.entry || []
 
 initTags = ($scope)->
   $scope.tags = []
@@ -290,14 +320,12 @@ app.controller 'ResourceCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
 
   $scope.affixResourceTags = ()->
     $fhir.affixTags type: rt, id: id, tags: $scope.tags, succes: (tagList)->
-      console.log(tagList)
       $scope.tags = tagList.category
 
   $scope.validate = ()->
     cl = $scope.resourceContentLocation
     res = $scope.resource.content
     tags = $scope.tags.filter((i)-> i.term)
-    console.log($fhir)
     $fhir.validate entry: {content: angular.fromJson(res), category: tags}, success: ()->
       #alert('Valid')
 

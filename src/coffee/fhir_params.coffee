@@ -100,12 +100,13 @@ class Query
 
   addSearchParam: (param)=>
     @params.push(
-      name: param.name,
-      type: param.type,
-      modifier: '',
-      operations: operations[param.type] || ['='],
-      modifiers:  modifiers[param.type] || [],
-      operation: '=',
+      name: param.name
+      type: param.type
+      xpath: param.xpath
+      modifier: ''
+      operations: operations[param.type] || ['=']
+      modifiers:  modifiers[param.type] || []
+      operation: '='
       values: [{}]
     )
     @params = @params.sort((a,b)-> a.name.localeCompare(b.name))

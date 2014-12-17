@@ -126,6 +126,8 @@ _getByXpath = (acc, entry, xpath)->
         _getByXpath(acc, aval, newpath) for aval in val
       else if angular.isObject(val)
         _getByXpath(acc, val, newpath)
+      else if newpath.length < 1 and val?
+        acc.push(val)
 
 _searchPreview = (entry, params)->
   res = []

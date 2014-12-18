@@ -35,7 +35,7 @@ env BASEURL=http://fhirplace.health-samurai.io npm run-script build
 env PORT=8080 BASEURL=http://fhirplace.health-samurai.io npm start
 
 #publish
-env PORT=8080 BASEURL=http://fhirplace.health-samurai.io npm run-script fhir
+env PORT=8080 BASEURL=http://fhirplace.health-samurai.io npm run-script deploy
 ```
 
 

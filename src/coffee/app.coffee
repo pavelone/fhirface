@@ -2,11 +2,14 @@ require('file?name=index.html!../index.html')
 require('file?name=fhir.json!../fhir.json')
 require('../less/app.less')
 
+URI = require('../../bower_components/uri.js/src/URI.js')
+
 app = require('./module')
 require('./fhir')
 require('./views')
 
 baseUrl = require('./baseurl')
+oauthUrl = require('./oauthurl')()
 
 app.config ($routeProvider) ->
     $routeProvider
@@ -71,8 +74,14 @@ magic = {
     magic.notifications.splice(magic.notifications.indexOf(i), 1)
 }
 
-app.run ($rootScope, $appFhir, menu)->
+app.run ($rootScope, $appFhir, menu, $window)->
 #  $rootScope.fhir = $appFhir
+
+  queryString = URI($window.location.search).query(true)
+  unless queryString.code
+    $window.location.href = oauthUrl.authorize
+  end
+
   magic = $appFhir
   $rootScope.fhir = magic
   $rootScope.menu = menu

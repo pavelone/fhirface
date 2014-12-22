@@ -89,11 +89,17 @@ app.run ($rootScope, $appFhir, menu, $window, $location)->
     response_type: 'code'
     scope: 'all'
 
-  code = $location.search().code || queryString.code || null
+  code = $location.search().code || queryString.code || undefined
   if code
     $rootScope.oauth.code = code
 
-  $location.path("/authorization") unless $rootScope.oauth.code
+  if $rootScope.oauth.code && !$rootScope.oauth.access_token
+    back_uri = $location.path()
+    back_uri = '/' if back_uri.match(/^\/authorization/) || back_uri == ''
+    $rootScope.oauth.back_uri = back_uri
+    $location.path('/redirect')
+  else if !$rootScope.oauth.code
+    $location.path('/authorization')
 
   magic = $appFhir
   $rootScope.fhir = magic
@@ -189,7 +195,7 @@ app.filter 'profileTypes', ()->
         i.code
     ).join(', ')
 
-app.controller 'AuthorizationCtrl', (menu, $scope, $fhir, $rootScope) ->
+app.controller 'AuthorizationCtrl', (menu, $scope, $rootScope) ->
   menu.build({}, 'authorization*')
 
   oauth = $rootScope.oauth
@@ -202,7 +208,7 @@ app.controller 'AuthorizationCtrl', (menu, $scope, $fhir, $rootScope) ->
       scope: oauth.scope
     ).toString()
 
-app.controller 'AuthorizationRedirectCtrl', (menu, $scope, $fhir, $rootScope, $http) ->
+app.controller 'AuthorizationRedirectCtrl', (menu, $rootScope, $http, $location) ->
   menu.build({}, 'authorizationRedirect*')
 
   oauth = $rootScope.oauth
@@ -219,6 +225,11 @@ app.controller 'AuthorizationRedirectCtrl', (menu, $scope, $fhir, $rootScope, $h
   ).success((data) ->
     $rootScope.oauth.access_token = data.access_token
     $rootScope.oauth.scope = data.scope
+
+    back_uri = angular.copy($rootScope.oauth.back_uri)
+    $rootScope.oauth.back_uri = null
+    # $location.path(back_uri || '/')
+    $location.path('/')
   ).error (data) ->
     console.log 'OAuth2 access_token getting error', data
 

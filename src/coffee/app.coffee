@@ -195,7 +195,7 @@ app.controller 'AuthorizationCtrl', (menu, $scope, $fhir, $rootScope) ->
       redirect_uri: oauth.redirectUri
       response_type: oauth.responseType
       scope: oauth.scope
-    ).href()
+    ).toString()
 
 app.controller 'ConformanceCtrl', (menu, $scope, $fhir) ->
   menu.build({}, 'conformance*')

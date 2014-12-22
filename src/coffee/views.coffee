@@ -1,3 +1,4 @@
+require('../views/authorization.html')
 require('../views/conformance.html')
 require('../views/document.html')
 require('../views/history.html')

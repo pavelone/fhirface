@@ -16,6 +16,9 @@ app.config ($routeProvider) ->
       .when '/',
         templateUrl: '/views/conformance.html'
         controller: 'ConformanceCtrl'
+      .when '/authorization',
+        templateUrl: '/views/authorization.html'
+        controller: 'AuthorizationCtrl'
       .when '/conformance',
         templateUrl: '/views/conformance.html'
         controller: 'ConformanceCtrl'
@@ -74,13 +77,14 @@ magic = {
     magic.notifications.splice(magic.notifications.indexOf(i), 1)
 }
 
-app.run ($rootScope, $appFhir, menu, $window)->
-#  $rootScope.fhir = $appFhir
-
+app.run ($rootScope, $appFhir, menu, $window, $location)->
   queryString = URI($window.location.search).query(true)
-  unless queryString.code
-    $window.location.href = oauthUrl.authorize
-  end
+  $rootScope.oauth = {}
+
+  if queryString.code
+    $rootScope.oauth.code = queryString.code
+
+  $location.path("/authorization") unless $rootScope.oauth.access_token
 
   magic = $appFhir
   $rootScope.fhir = magic
@@ -175,6 +179,19 @@ app.filter 'profileTypes', ()->
       else
         i.code
     ).join(', ')
+
+app.controller 'AuthorizationCtrl', (menu, $scope, $fhir, $rootScope) ->
+  menu.build({}, 'authorization*')
+
+  $scope.oauth = $rootScope.oauth
+  # $window.location.href = oauthUrl.authorize
+  $scope.authorizeUri = URI(oauthUrl.authorize)
+    .setQuery({
+      scope: 'foo',
+      response_type: 'code',
+      client_id: 'foo',
+      redirect_uri: 'http://192.168.0.39:53000'
+    }).href()
 
 app.controller 'ConformanceCtrl', (menu, $scope, $fhir) ->
   menu.build({}, 'conformance*')

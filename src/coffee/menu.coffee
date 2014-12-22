@@ -4,6 +4,7 @@ cropUuid = (id)->
   "...#{sid}"
 
 MENU=
+  authorization: (p)-> {url: '/authorization', label: 'Authorization'}
   conformance:  (p)-> {url: '/conformance', label: 'Conformance'}
   index_all:    (p)-> {url: "/resources/Any", label: 'Any'}
   history_all:  (p)-> {url: "/resources/Any/history", label: 'History', icon: 'fa-history'}

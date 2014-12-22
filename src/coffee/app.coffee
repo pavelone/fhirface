@@ -79,7 +79,11 @@ magic = {
 
 app.run ($rootScope, $appFhir, menu, $window, $location)->
   queryString = URI($window.location.search).query(true)
-  $rootScope.oauth = {}
+  $rootScope.oauth =
+    clientId: 'bar'
+    redirectUri: 'http://foo'
+    responseType: 'code'
+    scope: 'foo'
 
   if queryString.code
     $rootScope.oauth.code = queryString.code
@@ -183,15 +187,15 @@ app.filter 'profileTypes', ()->
 app.controller 'AuthorizationCtrl', (menu, $scope, $fhir, $rootScope) ->
   menu.build({}, 'authorization*')
 
-  $scope.oauth = $rootScope.oauth
+  oauth = $rootScope.oauth
   # $window.location.href = oauthUrl.authorize
   $scope.authorizeUri = URI(oauthUrl.authorize)
-    .setQuery({
-      scope: 'foo',
-      response_type: 'code',
-      client_id: 'foo',
-      redirect_uri: 'http://192.168.0.39:53000'
-    }).href()
+    .setQuery(
+      client_id: oauth.clientId
+      redirect_uri: oauth.redirectUri
+      response_type: oauth.responseType
+      scope: oauth.scope
+    ).href()
 
 app.controller 'ConformanceCtrl', (menu, $scope, $fhir) ->
   menu.build({}, 'conformance*')

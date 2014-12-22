@@ -1,4 +1,5 @@
 require('../views/authorization.html')
+require('../views/authorization_redirect.html')
 require('../views/conformance.html')
 require('../views/document.html')
 require('../views/history.html')

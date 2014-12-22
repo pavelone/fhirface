@@ -19,6 +19,9 @@ app.config ($routeProvider) ->
       .when '/authorization',
         templateUrl: '/views/authorization.html'
         controller: 'AuthorizationCtrl'
+      .when '/redirect',
+        templateUrl: '/views/authorization_redirect.html'
+        controller: 'AuthorizationRedirectCtrl'
       .when '/conformance',
         templateUrl: '/views/conformance.html'
         controller: 'ConformanceCtrl'
@@ -80,15 +83,17 @@ magic = {
 app.run ($rootScope, $appFhir, menu, $window, $location)->
   queryString = URI($window.location.search).query(true)
   $rootScope.oauth =
-    clientId: 'bar'
-    redirectUri: 'http://foo'
-    responseType: 'code'
-    scope: 'foo'
+    client_id: '99a093ae-a4ed-4c4c-b6c4-c768342604ea'
+    client_secret: '2fe0628e-669f-4aa5-b221-c44d926c53e1'
+    redirect_uri: 'http://192.168.0.39:53000/#/redirect'
+    response_type: 'code'
+    scope: 'all'
 
-  if queryString.code
-    $rootScope.oauth.code = queryString.code
+  code = $location.search().code || queryString.code || null
+  if code
+    $rootScope.oauth.code = code
 
-  $location.path("/authorization") unless $rootScope.oauth.access_token
+  $location.path("/authorization") unless $rootScope.oauth.code
 
   magic = $appFhir
   $rootScope.fhir = magic
@@ -191,11 +196,29 @@ app.controller 'AuthorizationCtrl', (menu, $scope, $fhir, $rootScope) ->
   # $window.location.href = oauthUrl.authorize
   $scope.authorizeUri = URI(oauthUrl.authorize)
     .setQuery(
-      client_id: oauth.clientId
-      redirect_uri: oauth.redirectUri
-      response_type: oauth.responseType
+      client_id: oauth.client_id
+      redirect_uri: oauth.redirect_uri
+      response_type: oauth.response_type
       scope: oauth.scope
     ).toString()
+
+app.controller 'AuthorizationRedirectCtrl', (menu, $scope, $fhir, $rootScope, $http) ->
+  menu.build({}, 'authorizationRedirect*')
+  $http(
+    method: 'POST'
+    url: oauthUrl.access_token
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+    data: URI('').setQuery(
+      client_id: '99a093ae-a4ed-4c4c-b6c4-c768342604ea'
+      client_secret: '2fe0628e-669f-4aa5-b221-c44d926c53e1'
+      code: $rootScope.oauth.code
+      redirect_uri: 'http://192.168.0.39:53000/#/redirect'
+    ).query()
+  ).success((data) ->
+    $rootScope.oauth.access_token = data.access_token
+    $rootScope.oauth.scope = data.scope
+  ).error (data) ->
+    console.log 'OAuth2 access_token getting error', data
 
 app.controller 'ConformanceCtrl', (menu, $scope, $fhir) ->
   menu.build({}, 'conformance*')

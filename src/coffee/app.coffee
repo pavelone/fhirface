@@ -204,15 +204,17 @@ app.controller 'AuthorizationCtrl', (menu, $scope, $fhir, $rootScope) ->
 
 app.controller 'AuthorizationRedirectCtrl', (menu, $scope, $fhir, $rootScope, $http) ->
   menu.build({}, 'authorizationRedirect*')
+
+  oauth = $rootScope.oauth
   $http(
     method: 'POST'
     url: oauthUrl.access_token
     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
     data: URI('').setQuery(
-      client_id: '99a093ae-a4ed-4c4c-b6c4-c768342604ea'
-      client_secret: '2fe0628e-669f-4aa5-b221-c44d926c53e1'
-      code: $rootScope.oauth.code
-      redirect_uri: 'http://192.168.0.39:53000/#/redirect'
+      client_id: oauth.client_id
+      client_secret: oauth.client_secret
+      code: oauth.code
+      redirect_uri: oauth.redirect_uri
     ).query()
   ).success((data) ->
     $rootScope.oauth.access_token = data.access_token

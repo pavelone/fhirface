@@ -107,15 +107,19 @@ app.run ($rootScope, $appFhir, menu, $window, $location)->
 
 app.config ($fhirProvider, $httpProvider)->
   $fhirProvider.baseUrl = baseUrl()
-  $httpProvider.interceptors.push ($q, $timeout)->
+  $httpProvider.interceptors.push ($q, $timeout, $rootScope)->
     {
       request: (config) ->
         note = angular.copy(config)
-        unless note.url.match(/^\/views\//)
+        uri = URI(config.url)
+        unless uri.path().match(/^\/(views|oauth)/)
           note.status = "..."
           note.config = config
           magic.notifications.push(note)
           magic.active += 1
+          config.url = uri.addQuery(
+            access_token: $rootScope.oauth.access_token
+          ).toString()
           $timeout (()-> magic.removeNotification(note)), NOTIFICATION_REMOVE_TIMEOUT
         config
       response: (response) ->

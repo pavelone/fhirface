@@ -85,7 +85,7 @@ app.run ($rootScope, $appFhir, menu, $window, $location)->
   $rootScope.oauth =
     client_id: '99a093ae-a4ed-4c4c-b6c4-c768342604ea'
     client_secret: '2fe0628e-669f-4aa5-b221-c44d926c53e1'
-    redirect_uri: 'http://localhost:53000/#/redirect'
+    redirect_uri: 'http://localhost:53000/#/redirect' #DOTO: use some config (i do not known where should place stuff like 'redirect uri = 'http://localhost/redirect' blabla)
     response_type: 'code'
     scope: 'all'
 

@@ -212,7 +212,7 @@ app.controller 'AuthorizationCtrl', (menu, $scope, $rootScope) ->
 
   oauth = $rootScope.oauth
   # $window.location.href = oauthUrl.authorize
-  $scope.authorizeUri = URI(oauthUrl.authorize)
+  $scope.authorizeUri = URI(oauthUrl.authorize_uri)
     .setQuery(
       client_id: oauth.client_id
       redirect_uri: oauth.redirect_uri
@@ -227,7 +227,7 @@ app.controller 'AuthorizationRedirectCtrl', (menu, $rootScope, $http, $location)
     oauth = $rootScope.oauth
     $http(
       method: 'POST'
-      url: oauthUrl.access_token
+      url: oauthUrl.access_token_uri
       headers: {'Content-Type': 'application/x-www-form-urlencoded'}
       data: URI('').setQuery(
         client_id: oauth.client_id

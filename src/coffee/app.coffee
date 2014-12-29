@@ -86,20 +86,28 @@ app.run ($rootScope, $appFhir, menu, $window, $location)->
     client_id: '99a093ae-a4ed-4c4c-b6c4-c768342604ea'
     client_secret: '2fe0628e-669f-4aa5-b221-c44d926c53e1'
     redirect_uri: 'http://localhost:53000/#/redirect' #DOTO: use some config (i do not known where should place stuff like 'redirect uri = 'http://localhost/redirect' blabla)
-    response_type: 'code'
+    response_type: 'token'
     scope: 'all'
+    # response_type: 'code'
 
   code = $location.search().code || queryString.code || undefined
+  accessToken = $location.search().access_token || queryString.access_token || undefined
   if code
     $rootScope.oauth.code = code
+  if accessToken
+    $rootScope.oauth.access_token = accessToken
 
-  if $rootScope.oauth.code && !$rootScope.oauth.access_token
-    back_uri = $location.path()
-    back_uri = '/' if back_uri.match(/^\/authorization/) || back_uri == ''
-    $rootScope.oauth.back_uri = back_uri
-    $location.path('/redirect')
-  else if !$rootScope.oauth.code
-    $location.path('/authorization')
+  if $rootScope.response_type == 'code'
+    if $rootScope.oauth.code && !$rootScope.oauth.access_token
+      back_uri = $location.path()
+      back_uri = '/' if back_uri.match(/^\/authorization/) || back_uri == ''
+      $rootScope.oauth.back_uri = back_uri
+      $location.path('/redirect')
+    else if !$rootScope.oauth.code
+      $location.path('/authorization')
+  else if $rootScope.oauth.response_type == 'token'
+    if !$rootScope.oauth.access_token
+      $location.path('/authorization')
 
   magic = $appFhir
   $rootScope.fhir = magic
@@ -215,27 +223,30 @@ app.controller 'AuthorizationCtrl', (menu, $scope, $rootScope) ->
 app.controller 'AuthorizationRedirectCtrl', (menu, $rootScope, $http, $location) ->
   menu.build({}, 'authorizationRedirect*')
 
-  oauth = $rootScope.oauth
-  $http(
-    method: 'POST'
-    url: oauthUrl.access_token
-    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-    data: URI('').setQuery(
-      client_id: oauth.client_id
-      client_secret: oauth.client_secret
-      code: oauth.code
-      redirect_uri: oauth.redirect_uri
-    ).query()
-  ).success((data) ->
-    $rootScope.oauth.access_token = data.access_token
-    $rootScope.oauth.scope = data.scope
+  if $rootScope.oauth.response_type == 'code'
+    oauth = $rootScope.oauth
+    $http(
+      method: 'POST'
+      url: oauthUrl.access_token
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+      data: URI('').setQuery(
+        client_id: oauth.client_id
+        client_secret: oauth.client_secret
+        code: oauth.code
+        redirect_uri: oauth.redirect_uri
+      ).query()
+    ).success((data) ->
+      $rootScope.oauth.access_token = data.access_token
+      $rootScope.oauth.scope = data.scope
 
-    back_uri = angular.copy($rootScope.oauth.back_uri)
-    $rootScope.oauth.back_uri = null
-    # $location.path(back_uri || '/')
+      back_uri = angular.copy($rootScope.oauth.back_uri)
+      $rootScope.oauth.back_uri = null
+      # $location.path(back_uri || '/')
+      $location.path('/')
+    ).error (data) ->
+      console.log 'OAuth2 access_token getting error', data
+  else if $rootScope.oauth.response_type == 'token'
     $location.path('/')
-  ).error (data) ->
-    console.log 'OAuth2 access_token getting error', data
 
 app.controller 'ConformanceCtrl', (menu, $scope, $fhir) ->
   menu.build({}, 'conformance*')

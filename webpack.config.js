@@ -31,8 +31,8 @@ module.exports = {
     new webpack.DefinePlugin({
       BASEURL: JSON.stringify(process.env.BASEURL),
       OAUTH_RESPONSE_TYPE: JSON.stringify(process.env.OAUTH_RESPONSE_TYPE),
-      OAUTH_AUTHORIZE_URL: JSON.stringify(process.env.OAUTH_AUTHORIZE_URL),
-      OAUTH_ACCESS_TOKEN_URL: JSON.stringify(process.env.OAUTH_ACCESS_TOKEN_URL),
+      OAUTH_AUTHORIZE_URI: JSON.stringify(process.env.OAUTH_AUTHORIZE_URI),
+      OAUTH_ACCESS_TOKEN_URI: JSON.stringify(process.env.OAUTH_ACCESS_TOKEN_URI),
       OAUTH_REDIRECT_URI: JSON.stringify(process.env.OAUTH_REDIRECT_URI),
       OAUTH_CLIENT_ID: JSON.stringify(process.env.OAUTH_CLIENT_ID),
       OAUTH_CLIENT_SECRET: JSON.stringify(process.env.OAUTH_CLIENT_SECRET),

@@ -100,9 +100,6 @@ app.run ($rootScope, $appFhir, menu, $window, $location)->
 
     if oauthConfig.response_type == 'code'
       if $rootScope.oauth.code && !$rootScope.oauth.access_token
-        back_uri = $location.path()
-        back_uri = '/' if back_uri.match(/^\/authorization/) || back_uri == ''
-        $rootScope.oauth.back_uri = back_uri
         $location.path('/redirect')
       else if !$rootScope.oauth.code
         $location.path('/authorization')
@@ -237,8 +234,6 @@ app.controller 'AuthorizationRedirectCtrl', (menu, $rootScope, $http, $location)
       $rootScope.oauth.access_token = data.access_token
       $rootScope.oauth.scope = data.scope
 
-      back_uri = angular.copy($rootScope.oauth.back_uri)
-      $rootScope.oauth.back_uri = null
       $location.path('/')
     ).error (data) ->
       console.log 'OAuth2 access_token getting error', data

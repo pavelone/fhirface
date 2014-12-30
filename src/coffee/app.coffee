@@ -9,7 +9,7 @@ require('./fhir')
 require('./views')
 
 baseUrl = require('./baseurl')
-oauthUrl = require('./oauthurl')()
+oauthConfig = require('./oauth_config')()
 
 app.config ($routeProvider) ->
     $routeProvider
@@ -81,7 +81,7 @@ magic = {
 }
 
 app.run ($rootScope, $appFhir, menu, $window, $location)->
-  if oauthUrl.response_type
+  if oauthConfig.response_type
     queryString = URI($window.location.search).query(true)
     $rootScope.oauth =
       client_id: '99a093ae-a4ed-4c4c-b6c4-c768342604ea'
@@ -98,7 +98,7 @@ app.run ($rootScope, $appFhir, menu, $window, $location)->
     if accessToken
       $rootScope.oauth.access_token = accessToken
 
-    if oauthUrl.response_type == 'code'
+    if oauthConfig.response_type == 'code'
       if $rootScope.oauth.code && !$rootScope.oauth.access_token
         back_uri = $location.path()
         back_uri = '/' if back_uri.match(/^\/authorization/) || back_uri == ''
@@ -106,7 +106,7 @@ app.run ($rootScope, $appFhir, menu, $window, $location)->
         $location.path('/redirect')
       else if !$rootScope.oauth.code
         $location.path('/authorization')
-    else if oauthUrl.response_type == 'token'
+    else if oauthConfig.response_type == 'token'
       if !$rootScope.oauth.access_token
         $location.path('/authorization')
 
@@ -211,27 +211,27 @@ app.filter 'profileTypes', ()->
 app.controller 'AuthorizationCtrl', (menu, $scope, $rootScope) ->
   menu.build({}, 'authorization*')
 
-  $scope.authorizeUri = URI(oauthUrl.authorize_uri)
+  $scope.authorizeUri = URI(oauthConfig.authorize_uri)
     .setQuery(
-      client_id: oauthUrl.client_id
-      redirect_uri: oauthUrl.redirect_uri
-      response_type: oauthUrl.response_type
-      scope: oauthUrl.scope
+      client_id: oauthConfig.client_id
+      redirect_uri: oauthConfig.redirect_uri
+      response_type: oauthConfig.response_type
+      scope: oauthConfig.scope
     ).toString()
 
 app.controller 'AuthorizationRedirectCtrl', (menu, $rootScope, $http, $location) ->
   menu.build({}, 'authorizationRedirect*')
 
-  if oauthUrl.response_type == 'code'
+  if oauthConfig.response_type == 'code'
     $http(
       method: 'POST'
-      url: oauthUrl.access_token_uri
+      url: oauthConfig.access_token_uri
       headers: {'Content-Type': 'application/x-www-form-urlencoded'}
       data: URI('').setQuery(
-        client_id: oauthUrl.client_id
-        client_secret: oauthUrl.client_secret
+        client_id: oauthConfig.client_id
+        client_secret: oauthConfig.client_secret
         code: $rootScope.oauth.code
-        redirect_uri: oauthUrl.redirect_uri
+        redirect_uri: oauthConfig.redirect_uri
       ).query()
     ).success((data) ->
       $rootScope.oauth.access_token = data.access_token
@@ -242,7 +242,7 @@ app.controller 'AuthorizationRedirectCtrl', (menu, $rootScope, $http, $location)
       $location.path('/')
     ).error (data) ->
       console.log 'OAuth2 access_token getting error', data
-  else if oauthUrl.response_type == 'token'
+  else if oauthConfig.response_type == 'token'
     $location.path('/')
 
 app.controller 'ConformanceCtrl', (menu, $scope, $fhir) ->

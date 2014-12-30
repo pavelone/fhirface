@@ -1,5 +1,9 @@
 <div class="container">
   <h1>Authorization</h1>
-  <pre>{{ oauth | json }}</pre>
+
+  <!-- TODO: To remove this debuging output (and from angular
+             controller AuthorizationCtrl). -->
+  <pre>{{ debugOauth | json }}</pre>
+
   <a class="btn btn-primary" ng-href="{{ authorizeUri }}">Authorize</a>
 </div>

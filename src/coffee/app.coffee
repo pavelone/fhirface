@@ -83,21 +83,11 @@ magic = {
 app.run ($rootScope, $appFhir, menu, $window, $location)->
   if oauthConfig.response_type
     queryString = URI($window.location.search).query(true)
-    $rootScope.oauth =
-      client_id: '99a093ae-a4ed-4c4c-b6c4-c768342604ea'
-      client_secret: '2fe0628e-669f-4aa5-b221-c44d926c53e1'
-      redirect_uri: 'http://localhost:53000/#/redirect' #DOTO: use some config (i do not known where should place stuff like 'redirect uri = 'http://localhost/redirect' blabla)
-      response_type: 'token'
-      scope: 'all'
-      # response_type: 'code'
-
-    code = $location.search().code || queryString.code || undefined
-    accessToken = $location.search().access_token || queryString.access_token || undefined
-    if code
-      $rootScope.oauth.code = code
-    if accessToken
-      $rootScope.oauth.access_token = accessToken
-
+    code = $location.search().code || queryString.code
+    accessToken = $location.search().access_token || queryString.access_token
+    $rootScope.oauth = {}
+    $rootScope.oauth.code = code if code
+    $rootScope.oauth.access_token = accessToken if accessToken
     if oauthConfig.response_type == 'code'
       if $rootScope.oauth.code && !$rootScope.oauth.access_token
         $location.path('/redirect')
@@ -208,6 +198,11 @@ app.filter 'profileTypes', ()->
 app.controller 'AuthorizationCtrl', (menu, $scope, $rootScope) ->
   menu.build({}, 'authorization*')
 
+  # TODO: To remove this debuging output (and from view authorization.html).
+  $scope.debugOauth = {}
+  $scope.debugOauth.config = oauthConfig
+  $scope.debugOauth.variables = $rootScope.oauth
+
   $scope.authorizeUri = URI(oauthConfig.authorize_uri)
     .setQuery(
       client_id: oauthConfig.client_id
@@ -216,28 +211,35 @@ app.controller 'AuthorizationCtrl', (menu, $scope, $rootScope) ->
       scope: oauthConfig.scope
     ).toString()
 
-app.controller 'AuthorizationRedirectCtrl', (menu, $rootScope, $http, $location) ->
-  menu.build({}, 'authorizationRedirect*')
+app.controller 'AuthorizationRedirectCtrl',
+  (menu, $scope, $rootScope, $http, $location) ->
+    menu.build({}, 'authorizationRedirect*')
 
-  if oauthConfig.response_type == 'code'
-    $http(
-      method: 'POST'
-      url: oauthConfig.access_token_uri
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-      data: URI('').setQuery(
-        client_id: oauthConfig.client_id
-        client_secret: oauthConfig.client_secret
-        code: $rootScope.oauth.code
-        redirect_uri: oauthConfig.redirect_uri
-      ).query()
-    ).success((data) ->
-      $rootScope.oauth.access_token = data.access_token
-      $rootScope.oauth.scope = data.scope
+    # TODO: To remove this debuging output (and from view
+    # authorization_redirect.html).
+    $scope.debugOauth = {}
+    $scope.debugOauth.config = oauthConfig
+    $scope.debugOauth.variables = $rootScope.oauth
+
+    if oauthConfig.response_type == 'code'
+      $http(
+        method: 'POST'
+        url: oauthConfig.access_token_uri
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+        data: URI('').setQuery(
+          client_id: oauthConfig.client_id
+          client_secret: oauthConfig.client_secret
+          code: $rootScope.oauth.code
+          redirect_uri: oauthConfig.redirect_uri
+        ).query()
+      ).success((data) ->
+        $rootScope.oauth.access_token = data.access_token
+        $rootScope.oauth.scope = data.scope
+        $location.path('/')
+      ).error (data) ->
+        console.log 'OAuth2 access_token getting error', data
+    else if oauthConfig.response_type == 'token'
       $location.path('/')
-    ).error (data) ->
-      console.log 'OAuth2 access_token getting error', data
-  else if oauthConfig.response_type == 'token'
-    $location.path('/')
 
 app.controller 'ConformanceCtrl', (menu, $scope, $fhir) ->
   menu.build({}, 'conformance*')

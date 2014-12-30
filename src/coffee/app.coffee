@@ -90,8 +90,8 @@ app.run ($rootScope, $appFhir, menu, $window, $location)->
     $rootScope.oauth.access_token = accessToken if accessToken
     if oauthConfig.response_type == 'code'
 
-      #FIXME: REMOVE ME!!! Remove after new server demo (with backend)
-      #       will created.
+      # FIXME: REMOVE ME!!! Remove after new server demo (with backend)
+      #        will created.
       if $rootScope.oauth.code && !$rootScope.oauth.access_token
         $location.path('/redirect')
       else if !$rootScope.oauth.code

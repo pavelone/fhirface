@@ -233,7 +233,6 @@ app.controller 'AuthorizationRedirectCtrl', (menu, $rootScope, $http, $location)
     ).success((data) ->
       $rootScope.oauth.access_token = data.access_token
       $rootScope.oauth.scope = data.scope
-
       $location.path('/')
     ).error (data) ->
       console.log 'OAuth2 access_token getting error', data

@@ -7,6 +7,7 @@
 ```sh
 nvm use 0 \
   && PORT=53000 \
+     BASEURL=http://localhost:3000/fhir \
      OAUTH_CLIENT_ID=99a093ae-a4ed-4c4c-b6c4-c768342604ea \
      OAUTH_CLIENT_SECRET=2fe0628e-669f-4aa5-b221-c44d926c53e1 \
      OAUTH_REDIRECT_URI=http://localhost:53000/#/redirect \
@@ -22,6 +23,7 @@ nvm use 0 \
 ```sh
 nvm use 0 \
   && PORT=53000 \
+     BASEURL=http://localhost:3000/fhir \
      OAUTH_CLIENT_ID=99a093ae-a4ed-4c4c-b6c4-c768342604ea \
      OAUTH_CLIENT_SECRET=2fe0628e-669f-4aa5-b221-c44d926c53e1 \
      OAUTH_REDIRECT_URI=http://localhost:53000/#/redirect \

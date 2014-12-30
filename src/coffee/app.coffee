@@ -120,17 +120,21 @@ app.config ($fhirProvider, $httpProvider) ->
           config.url = uri.addQuery(
             access_token: $rootScope.oauth.access_token
           ).toString()
-        $timeout (()-> magic.removeNotification(note)), NOTIFICATION_REMOVE_TIMEOUT
+        $timeout (()-> magic.removeNotification(note)),
+          NOTIFICATION_REMOVE_TIMEOUT
       config
     response: (response) ->
       magic.active -= 1
-      (magic.notifications.filter((n) -> n.config == response.config)[0] || {}).status = response.status
+      (magic.notifications.filter((n) -> n.config == response.config)[0] || {})
+        .status = response.status
       response
     responseError: (rejection) ->
       console.error("error: ", rejection)
       magic.active -= 1
-      (magic.notifications.filter((n) -> n.config == rejection.config)[0] || {}).status = rejection.status
-      magic.error = rejection.data || "Server error #{rejection.status} while loading: #{rejection.config.url}"
+      (magic.notifications.filter((n) -> n.config == rejection.config)[0] || {})
+        .status = rejection.status
+      magic.error = rejection.data ||
+        "Server error #{rejection.status} while loading: #{rejection.config.url}"
       $q.reject(rejection)
 
 cropUuid = (id)->

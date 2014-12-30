@@ -52,8 +52,8 @@ nvm use 0 \
   && env \
      PORT=8080 \
      BASEURL='http://localhost:3000/fhir' \
-     OAUTH_CLIENT_ID='99a093ae-a4ed-4c4c-b6c4-c768342604ea' \
-     OAUTH_CLIENT_SECRET='2fe0628e-669f-4aa5-b221-c44d926c53e1' \
+     OAUTH_CLIENT_ID='your-oauth-client-id' \
+     OAUTH_CLIENT_SECRET='your-oauth-client-secret' \
      OAUTH_REDIRECT_URI='http://localhost:8080/#/redirect' \
      OAUTH_SCOPE='all' \
      OAUTH_RESPONSE_TYPE='token'

@@ -1,5 +1,6 @@
 Fhirface
 =========
+
 ## [Live Demo](http://try-fhirplace.hospital-systems.com/fhirface/index.html#/)
 
 [fhirplace](https://github.com/fhirbase/fhirplace) on server side.
@@ -23,21 +24,39 @@ Features:
 `nodejs` is required for build.
 We recommend install it using [nvm](https://github.com/creationix/nvm/blob/master/README.markdown)
 
-```
+```sh
 git clone https://github.com/fhirbase/fhirface
 cd fhirface
 # install npm modules
 npm install
-#build app into ./dist
+# build app into ./dist
 env BASEURL=http://fhirplace.health-samurai.io npm run-script build
 
-#run def server
+# run def server
 env PORT=8080 BASEURL=http://fhirplace.health-samurai.io npm start
 
-#publish
+# publish
 env PORT=8080 BASEURL=http://fhirplace.health-samurai.io npm run-script deploy
 ```
 
+### Run with OAuth2
+
+Asume `Fhirwall` running on `http://localhost:3000/fhir` and
+application it self running on `http://localhost:8080/#/redirect`.
+
+```sh
+nvm use 0 \
+  && env \
+     PORT=8080 \
+     BASEURL='http://localhost:3000/fhir' \
+     OAUTH_CLIENT_ID='99a093ae-a4ed-4c4c-b6c4-c768342604ea' \
+     OAUTH_CLIENT_SECRET='2fe0628e-669f-4aa5-b221-c44d926c53e1' \
+     OAUTH_REDIRECT_URI='http://localhost:8080/#/redirect' \
+     OAUTH_SCOPE='all' \
+     OAUTH_RESPONSE_TYPE='token'
+     OAUTH_AUTHORIZE_URI='http://localhost:3000/oauth/authorize' \
+     npm start
+```
 
 After building you can copy build directory into your web server
 directory and open index.html file.

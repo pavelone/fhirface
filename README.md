@@ -44,7 +44,7 @@ directory and open index.html file.
 
 ### Run with OAuth2
 
-Asume `Fhirwall` running on `http://localhost:3000/fhir` and
+Asume [Fhirwall][] running on `http://localhost:3000/fhir` and
 application it self running on `http://localhost:8080/#/redirect`.
 
 ```sh
@@ -60,6 +60,8 @@ nvm use 0 \
      OAUTH_AUTHORIZE_URI='http://localhost:3000/oauth/authorize' \
      npm start
 ```
+
+[Fhirwall]: https://github.com/fhirbase/fhirwall
 
 ## Service
 

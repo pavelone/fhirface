@@ -117,9 +117,10 @@ app.config ($fhirProvider, $httpProvider)->
           note.config = config
           magic.notifications.push(note)
           magic.active += 1
-          config.url = uri.addQuery(
-            access_token: $rootScope.oauth.access_token
-          ).toString()
+          if oauthConfig.response_type
+            config.url = uri.addQuery(
+              access_token: $rootScope.oauth.access_token
+            ).toString()
           $timeout (()-> magic.removeNotification(note)), NOTIFICATION_REMOVE_TIMEOUT
         config
       response: (response) ->

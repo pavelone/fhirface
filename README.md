@@ -44,8 +44,8 @@ directory and open index.html file.
 
 ### Run with OAuth2
 
-Asume [Fhirwall][] running on `http://localhost:3000/fhir` and
-application it self running on `http://localhost:8080/#/redirect`.
+Asume [Fhirwall][] running on `http://localhost:3000` and
+application it self running on `http://localhost:8080`.
 
 ```sh
 nvm use 0 \

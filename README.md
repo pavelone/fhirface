@@ -39,6 +39,9 @@ env PORT=8080 BASEURL=http://fhirplace.health-samurai.io npm start
 env PORT=8080 BASEURL=http://fhirplace.health-samurai.io npm run-script deploy
 ```
 
+After building you can copy build directory into your web server
+directory and open index.html file.
+
 ### Run with OAuth2
 
 Asume `Fhirwall` running on `http://localhost:3000/fhir` and
@@ -57,9 +60,6 @@ nvm use 0 \
      OAUTH_AUTHORIZE_URI='http://localhost:3000/oauth/authorize' \
      npm start
 ```
-
-After building you can copy build directory into your web server
-directory and open index.html file.
 
 ## Service
 

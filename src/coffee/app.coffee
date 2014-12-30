@@ -105,35 +105,34 @@ app.run ($rootScope, $appFhir, menu, $window, $location)->
   $rootScope.fhir = magic
   $rootScope.menu = menu
 
-app.config ($fhirProvider, $httpProvider)->
+app.config ($fhirProvider, $httpProvider) ->
   $fhirProvider.baseUrl = baseUrl()
-  $httpProvider.interceptors.push ($q, $timeout, $rootScope)->
-    {
-      request: (config) ->
-        note = angular.copy(config)
-        uri = URI(config.url)
-        unless uri.path().match(/^\/(views|oauth)/)
-          note.status = "..."
-          note.config = config
-          magic.notifications.push(note)
-          magic.active += 1
-          if oauthConfig.response_type
-            config.url = uri.addQuery(
-              access_token: $rootScope.oauth.access_token
-            ).toString()
-          $timeout (()-> magic.removeNotification(note)), NOTIFICATION_REMOVE_TIMEOUT
-        config
-      response: (response) ->
-        magic.active -= 1
-        (magic.notifications.filter((n) -> n.config == response.config)[0] || {}).status = response.status
-        response
-      responseError: (rejection) ->
-        console.error("error: ", rejection)
-        magic.active -= 1
-        (magic.notifications.filter((n) -> n.config == rejection.config)[0] || {}).status = rejection.status
-        magic.error = rejection.data || "Server error #{rejection.status} while loading: #{rejection.config.url}"
-        $q.reject(rejection)
-    }
+  $httpProvider.interceptors.push ($q, $timeout, $rootScope) ->
+    request: (config) ->
+      note = angular.copy(config)
+      uri = URI(config.url)
+      unless uri.path().match(/^\/(views|oauth)/)
+        note.status = "..."
+        note.config = config
+        magic.notifications.push(note)
+        magic.active += 1
+        if oauthConfig.response_type
+          config.url = uri.addQuery(
+            access_token: $rootScope.oauth.access_token
+          ).toString()
+        $timeout (()-> magic.removeNotification(note)), NOTIFICATION_REMOVE_TIMEOUT
+      config
+    response: (response) ->
+      magic.active -= 1
+      (magic.notifications.filter((n) -> n.config == response.config)[0] || {}).status = response.status
+      response
+    responseError: (rejection) ->
+      console.error("error: ", rejection)
+      magic.active -= 1
+      (magic.notifications.filter((n) -> n.config == rejection.config)[0] || {}).status = rejection.status
+      magic.error = rejection.data || "Server error #{rejection.status} while loading: #{rejection.config.url}"
+      $q.reject(rejection)
+
 cropUuid = (id)->
   return "ups no uuid :(" unless id
   sid = id.substring(id.length - 6, id.length)

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "dependencies": {
     "angular-ui-codemirror": "latest",
-    "bootstrap": "3.3.1",
+    "bootstrap": "latest",
     "jquery": "latest",
     "angular": "latest",
     "angular-animate": "latest",

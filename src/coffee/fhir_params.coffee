@@ -64,6 +64,7 @@ collectChainType = (profile)->
 # create empty query object
 class Query
   constructor: (profile)->
+    console.log(profile)
     @searchParam = profile.structure[0].searchParam
     @searchParam.unshift(t) for t in tags
     @searchChains = collectChains(profile)

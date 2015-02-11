@@ -1,0 +1,131 @@
+<div class="srch-box">
+  <div ng-show = "searchState=='addParam' || searchState=='addSortParam'">
+    <div class="ttl row">
+      <a class="btn btn-default col-xs-1" ng-click="searchState='search'"> &lt; Back</a>
+      <div class="col-xs-11">
+        <input class="form-control" ng-model="searchFilter" placeholder="filter"/>
+      </div>
+    </div>
+    <div class="itm" ng-repeat="param in typeFilterSearchParams(searchResourceType, searchFilter)"
+      ng-click="addParam(param)" >
+      <b>{{param.name}}</b>
+      <span class="text-muted">({{param.type}}) {{param.documentation}}</span>
+    </div>
+  </div>
+  <div ng-show = "searchState=='addRef'">
+    <div class="ttl row">
+      <a class="btn btn-default col-xs-1" ng-click="searchState='search'"> &lt; Back</a>
+      <div class="col-xs-11">
+        <input class="form-control" placeholder="filter"/>
+      </div>
+    </div>
+    <div class="itm" ng-repeat="param in query.searchIncludes"
+      ng-click="addParam(param)" >
+      <ab>{{param.path}}</ab>
+      <span class="text-muted">{{param.definition.short}}</span>
+    </div>
+  </div>
+  <div ng-show = "searchState=='addChain'">
+    <div class="ttl">
+      <a class="btn btn-default" ng-click="searchState='search'"> &lt; Back</a>
+      <input placeholder="filter"/>
+    </div>
+    <div class="itm" ng-repeat="param in query.searchChains" >
+      <ab>{{param | json}}</ab>
+      <span>{{param.xpath}}</span>
+      <span class="text-muted">{{param.documentation}}</span>
+    </div>
+  </div>
+  <div ng-show = "searchState=='search'"
+    ><div class="prm prm-ttl">
+      <div class="lbl"><b>Search</b></div
+      ><button class="c4" ng-click="searchState='addParam'">Add Param</button
+    </div
+    ><div
+      class="prm" ng-repeat="param in query.params" >
+      <button class="rm c2" ng-click="query.removeSearchParam(param)">×</button
+      ><span class="lbl param">{{param.name}}</span
+      ><select class="c4"
+        ng-model="param.modifier"
+        ng-options="mod for mod in param.modifiers"></select
+      ><select ng-show="param.operations.length > 1"
+        class="c2" ng-model="param.operation"
+        ng-options="op for op in param.operations"></select
+      ><div class="c2" ng-show="param.operations.length == 1"
+        style="text-align: center;"> = </div
+      ><div class="or-vals"
+        ><div clas="or-val" ng-repeat="v in param.values"
+          ><div style="display:inline-block;"
+            ng-switch="param.type"
+            ><div style="display: inline-block;"
+              ng-switch-when="string"
+              ><div
+                ><input ng-model="v.value" class="c16"
+                placeholder="string"/>
+              </div>
+            </div
+            ><div style="display: inline-block;"
+              ng-switch-when="date"
+              ><input ng-model="v.value"
+              class="c16"
+              placeholder="date"/>
+            </div
+            ><div style="display: inline-block;"
+              ng-switch-when="token"
+              ><input class="c8" ng-model="v.code" placeholder="code"/
+              ><input class="c8" ng-model="v.system" placeholder="system"/>
+            </div
+            ><div style="display: inline-block;"
+              ng-switch-when="number"
+              ><input class="c16" type="number" ng-model="v.value" placeholder="number"/>
+            </div
+            ><div style="display: inline-block;"
+              ng-switch-when="reference"
+              ><input class="c16" ng-model="v.value" placeholder="reference"/>
+            </div>
+          </div
+          ><button class="c2"ng-show="$index == 0" ng-click="query.addParamValue(param)">OR</button
+          ><button class="rm c2" ng-show="$index > 0" ng-click="query.removeParamValue(param, v)">×</button>
+        </div>
+      </div
+      ><button class="c2" ng-click="query.cloneSearchParam(param)">AND</button>
+    </div>
+  </div>
+  <div class="prm prm-ttl">
+    <div class="lbl"><b>Sort</b></div
+    ><button class="c4" ng-click="searchState='addSortParam'">Add Param</button>
+  </div
+  ><div class="prm" ng-repeat="param in query.sort">
+    <button class="rm c2" ng-click="query.removeSortParam(param)">×</button
+    ><span class="lbl param">{{param.name}}</span
+    ><select ng-model="param.direction" class="c4">
+      <option>asc</option>
+      <option>desc</option>
+    </select>
+  </div>
+  <div class="prm prm-ttl">
+    <div class="lbl"><b>Paging</b></div>
+  </div>
+  <div class="prm">
+    <span class="llbl">count</span
+    ><input class="c4" ng-model="query.count" type="number" min="0" step="1"/>
+  </div>
+  <div class="prm">
+    <span class="llbl" min="0" step="1">offset</span
+    ><input class="c4" ng-model="query.offset" type="number"/>
+  </div>
+  <div class="prm prm-ttl">
+    <div class="lbl"><b>Includes</b></div
+    ><button class="c4" ng-click="searchState='addRef'">Add Ref</button>
+  </div
+  ><div class="prm" ng-repeat="param in query.includes">
+    <button class="rm c2" ng-click="query.removeInclude(param)">×</button
+    ><div class="c16">{{param.path}}</div>
+  </div>
+</div>
+</div>
+
+<button ng-click="search()" class="btn btn-success">
+  Search: {{query.toQueryString()}}
+</button>
+<hr/>

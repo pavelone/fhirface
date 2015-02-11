@@ -9,6 +9,7 @@
     "coffee-loader": "latest",
     "css-loader": "latest",
     "html-loader": "latest",
+    "less": "latest",
     "less-loader": "latest",
     "file-loader": "latest",
     "url-loader": "latest",
@@ -16,7 +17,11 @@
     "style-loader": "latest",
     "webpack": "latest",
     "extract-text-webpack-plugin": "latest",
-    "webpack-dev-server": "latest"
+    "webpack-dev-server": "latest",
+    "merge": "~1.1.3",
+    "Base64": "~0.3.0",
+    "chance": "latest",
+    "request": "~2.42.0"
   },
   "engines": {
     "node": ">=0.10.0"

@@ -2,6 +2,7 @@
   "name": "fhirface",
   "version": "0.0.0",
   "dependencies": {
+    "uri.js": "latest",
     "angular-ui-codemirror": "latest",
     "bootstrap": "latest",
     "jquery": "latest",
@@ -10,9 +11,7 @@
     "angular-cookies": "latest",
     "angular-sanitize": "latest",
     "angular-route": "latest",
-    "fontawesome": "latest",
-    "fhir.js": "0.0.5",
-    "uri.js": "latest"
+    "fontawesome": "latest"
   },
   "resolutions": {
     "angular": "1.3"

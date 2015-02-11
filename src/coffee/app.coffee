@@ -11,59 +11,7 @@ require('./views')
 baseUrl = require('./baseurl')
 oauthConfig = require('./oauth_config')()
 
-app.config ($routeProvider) ->
-    $routeProvider
-      .when '/',
-        templateUrl: '/views/conformance.html'
-        controller: 'ConformanceCtrl'
-      .when '/authorization',
-        templateUrl: '/views/authorization.html'
-        controller: 'AuthorizationCtrl'
-      .when '/redirect',
-        templateUrl: '/views/authorization_redirect.html'
-        controller: 'AuthorizationRedirectCtrl'
-      .when '/conformance',
-        templateUrl: '/views/conformance.html'
-        controller: 'ConformanceCtrl'
-      .when '/resources/Any',
-        templateUrl: '/views/index.html'
-        controller: 'IndexCtrl'
-      .when '/resources/Any/history',
-        templateUrl: '/views/history.html'
-        controller: 'HistoryCtrl'
-      .when '/resources/Any/tags',
-        templateUrl: '/views/tags.html'
-        controller: 'TagsCtrl'
-      .when '/resources/Any/transaction',
-        templateUrl: '/views/transaction.html'
-        controller: 'TransactionCtrl'
-      .when '/resources/Any/document',
-        templateUrl: '/views/document.html'
-        controller: 'DocumentCtrl'
-      .when '/resources/:resourceType',
-        templateUrl: '/views/index.html'
-        controller: 'ResourcesIndexCtrl'
-      .when '/resources/:resourceType/history',
-        templateUrl: '/views/history.html'
-        controller: 'ResourcesHistoryCtrl'
-      .when '/resources/:resourceType/tags',
-        templateUrl: '/views/tags.html'
-        controller: 'ResourcesTagsCtrl'
-      .when '/resources/:resourceType/new',
-        templateUrl: '/views/new.html'
-        controller: 'ResourcesNewCtrl'
-      .when '/resources/:resourceType/:id',
-        templateUrl: '/views/show.html'
-        controller: 'ResourceCtrl'
-      .when '/resources/:resourceType/:id/history',
-        templateUrl: '/views/history.html'
-        controller: 'ResourceHistoryCtrl'
-      .when '/resources/:resourceType/:id/tags',
-        templateUrl: '/views/tags.html'
-        controller: 'ResourceTagsCtrl'
-      .otherwise
-        redirectTo: '/'
-
+require('./routes')
 require('./menu')
 
 identity = (x)-> x
@@ -106,6 +54,7 @@ app.run ($rootScope, $appFhir, menu, $window, $location)->
   $rootScope.menu = menu
 
 app.config ($fhirProvider, $httpProvider) ->
+  # could you do it in a service???
   $fhirProvider.baseUrl = baseUrl()
   $httpProvider.interceptors.push ($q, $timeout, $rootScope) ->
     request: (config) ->
@@ -146,12 +95,11 @@ app.filter 'uuid', ()-> cropUuid
 
 app.filter 'urlFor', ()->
   (res)->
-    parts = res.id.split(/\//)
-    id = parts[parts.length - 1]
-    "#/resources/#{res.content.resourceType}/#{id}"
+    id = res.id
+    "#/resources/#{res.resourceType}/#{id}"
 
 _getByXpath = (acc, entry, xpath)->
-  if xpath.length < 1 and  entry?
+  if xpath.length < 1 and entry?
     acc.push(entry)
   else
     key = xpath[0]
@@ -165,20 +113,20 @@ _getByXpath = (acc, entry, xpath)->
       else if newpath.length < 1 and val?
         acc.push(val)
 
-_searchPreview = (entry, params)->
+_searchPreview = (resource, params)->
   res = []
-  for p in params
-    if p.xpath
-      path = p.xpath.split('/')
+  for k,p of params
+    if p and p.xpath
+      path = p.xpath.replace(/f:/g,'').split('/')
       path.shift()
       acc = []
-      _getByXpath(acc,entry.content, path)
-      res.push "#{p.xpath}: #{JSON.stringify(acc)}"
+      _getByXpath(acc,resource, path)
+      res.push "#{path.join('.')}: #{JSON.stringify(acc)}"
   res.join('; ')
 
 app.filter 'searchPreview', ()->
-  (entry, query)->
-    _searchPreview(entry, query.params)
+  (entry, params)->
+    _searchPreview(entry, params)
 
 cropId = (id)->
   return "ups no uuid :(" unless id
@@ -258,115 +206,71 @@ app.controller 'ConformanceCtrl', (menu, $scope, $fhir) ->
     delete data.text
     $scope.conformance = data
 
-# FIXME: this controller do not work
+#FIXME: this controller do not work
 app.controller 'IndexCtrl', (menu, $fhir, $appFhirParams, $appFhirSearch, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index_all*', 'transaction', 'document', 'history_all', 'tags_all')
 
-  rt = 'Alert'
+parseParams = (str, paramsIdx)->
+  res = {}
+  str.split('&')
+    .map((x)->  x.trim())
+    .forEach (pair)->
+      [k,v] = pair.split('=').map((x)-> x.trim())
+      res[k]=paramsIdx[k]
+  res
 
-  $scope.searchResourceType = rt
-  $scope.searchState = 'search'
-  $scope.searchFilter = ''
-  $scope.query = {searchParam: []}
-
-  $scope.addParam = (p)->
-    if $scope.searchState == 'addSortParam'
-      $scope.query.addSortParam(p)
-    if $scope.searchState == 'addRef'
-      $scope.query.addInclude(p)
-    else
-      $scope.query.addSearchParam(p)
-      $scope.searchFilter = ''
-    $scope.searchState="search"
-
-  $fhir.profile type: rt, success: (data)->
-    $scope.profile = data
-    $scope.query = $appFhirParams(data)
-
-  $scope.typeFilterSearchParams = (type, filter)->
-    $appFhirSearch.typeFilterSearchParams(type, filter)
-
-  $scope.search = ()->
-    $fhir.search type: rt, query: {}, success: (data, s, x, config)->
-      console.log($scope.searchSummary)
-      $scope.resources = data.entry || []
-
-app.controller 'ResourcesIndexCtrl', (menu, $fhir, $appFhirParams, $appFhirSearch, $appFhir, $scope, $routeParams) ->
+app.controller 'ResourcesIndexCtrl', (menu, $fhir, $scope, $routeParams) ->
   menu.build($routeParams, 'conformance', 'index*', 'new', 'history_type', 'tags_type')
 
   rt = $routeParams.resourceType
 
+  $scope.query = {}
   $scope.searchResourceType = rt
-  $scope.searchState = 'search'
-  $scope.searchFilter = ''
 
-  $scope.addParam = (p)->
-    if $scope.searchState == 'addSortParam'
-      $scope.query.addSortParam(p)
-    if $scope.searchState == 'addRef'
-      $scope.query.addInclude(p)
-    else
-      $scope.query.addSearchParam(p)
-      $scope.searchFilter = ''
-    $scope.searchState="search"
+  $scope.paramsIdx = {}
+  $fhir.search
+    type: 'SearchParameter'
+    query: {base: rt}
+    success: (sp)->
+      $scope.params = sp.entry.map((x)-> x.resource) || []
+      $scope.paramsIdx = $scope.params.reduce(((acc,x)-> acc[x.name]=x; acc), {})
 
-  $fhir.profile type: rt, success: (data)->
-    $scope.profile = data
-    $scope.query = $appFhirParams(data)
-    $scope.search()
-
-  $scope.typeFilterSearchParams = (type, filter)->
-    $appFhirSearch.typeFilterSearchParams(type, filter)
-
-  # TODO: refactor to fhir.js api
   $scope.search = ()->
-    unless $scope.query
-      console.error('Search query not initailized')
-      return
     start = new Date()
-    $appFhir.search rt, $scope.query, (data, s, x, config)->
-      $scope.searchSummary =  {title: data.title,  time: (new Date() - start)}
-      $scope.resources = data.entry || []
+    # query = {_count: 20}
+    query = '_count=20'
+    query = $scope.query.q if $scope.query.q
+    $scope.searched = parseParams(query, $scope.paramsIdx)
+    $fhir.search
+      type: rt
+      query: query
+      success: (data)->
+        $scope.searchSummary =  {title: data.title,  time: (new Date() - start)}
+        $scope.resources = data.entry.map((x)-> x.resource)
+      error: (err)->
+        console.error(err)
 
-initTags = ($scope)->
-  $scope.tags = []
-
-  schemes = {
-   Security: "http://hl7.org/fhir/tag/security",
-   Profile: "http://hl7.org/fhir/tag/profile",
-   Tag: "http://hl7.org/fhir/tag/tag"
-  }
-
-  $scope.removeTag = (x)->
-    tags = $scope.tags
-    tags.splice(tags.indexOf(x),1)
-
-  $scope.clearTags = ()->
-    $scope.tags = []
-
-  mkAdder = (schem)->
-    ()-> $scope.tags.push({scheme: schem})
-
-  $scope["add#{k}"] = mkAdder(s) for k,s of schemes
+  $scope.search()
 
 app.controller 'ResourcesNewCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
   menu.build($routeParams, 'conformance', 'index', 'new*')
 
   $scope.resource = {}
-  initTags($scope)
 
   rt = $routeParams.resourceType
 
   $scope.save = ->
-    tags = $scope.tags.filter((i)-> i.term)
-    $fhir.create entry: {content: angular.fromJson($scope.resource.content), category: tags}, success: ()->
-      $location.path("/resources/#{rt}")
+    $fhir.create
+      resource: angular.fromJson($scope.resource.content)
+      success: (data)->
+        $location.path("/resources/#{data.resourceType}/#{data.id}")
 
   $scope.validate = ()->
-    res = $scope.resource.content
-    tags = $scope.tags.filter((i)-> i.term)
-    $fhir.validate entry: {content: angular.fromJson(res), category: tags}, success: ()->
-      #alert('Valid')
+    res = angular.fromJson($scope.resource.content)
+    $fhir.validate
+      resource: res
+      success: (data)->
+        console.log(data)
 
 pretifyJson = (str)-> angular.toJson(angular.fromJson(str), true)
 
@@ -375,28 +279,29 @@ app.controller 'ResourceCtrl', (menu, $fhir, $scope, $routeParams, $location) ->
 
   rt = $routeParams.resourceType
   id = $routeParams.id
-  initTags($scope)
+
 
   loadResource = ()->
-    $fhir.read id: (rt + '/' + id), success: (data)->
-      $scope.tags = data.category
-      $scope.resource = { id: id, content: pretifyJson(data.content) }
+    $fhir.read id: id, resourceType: rt, success: (data)->
+      $scope.resource = { id: id, content: pretifyJson(data), resource: data }
       $scope.resourceContentLocation = data.id
       throw "content location required" unless $scope.resourceContentLocation
 
   loadResource()
 
   $scope.save = ->
-    cl = $scope.resourceContentLocation
-    res = $scope.resource.content
-    tags = $scope.tags.filter((i)-> i.term)
-    $fhir.update entry: {id: cl, content: angular.fromJson(res), category: tags}, success: (data)->
-      $scope.resourceContentLocation = data.id
-      throw "content location required" unless $scope.resourceContentLocation
+    res = angular.fromJson($scope.resource.content)
+    $fhir.update
+      resource: res
+      success: (data)->
+        $scope.resource = { id: data.id, content: pretifyJson(data) }
 
   $scope.destroy = ->
-    if window.confirm("Destroy #{$scope.resource.id}?")
-      $fhir.delete entry: {id: $scope.resourceContentLocation}, success: ()-> $location.path("/resources/#{rt}")
+    res = angular.fromJson($scope.resource.content)
+    if window.confirm("Destroy #{res.id}")
+      $fhir.delete
+        resource: res
+        success: ()-> $location.path("/resources/#{rt}")
 
   $scope.removeAllTags = ()->
     $fhir.removeTags type: rt, id: id, success: ()->

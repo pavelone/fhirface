@@ -1,35 +1,19 @@
-<div class="row">
-  <div class="col-xs-8">
-    <h3>Entry</h3>
-    <hr/>
-    <div class="item"
-      ng-repeat="entry in entries"
-      ng-click="entry._open =! entry._open">
-      {{entry.published}}
-      <span class="text-muted">{{entry.link[0].href}}</span>
+<h3>History</h3>
+<hr/>
+<div class="item"
+  ng-repeat="entry in entries"
+  ng-click="entry._open =! entry._open">
+  {{entry.resource.meta.lastUpdated | date}}
+  <span class="text-muted">{{entry.resource.id | uuid}}</span>
 
-      <span class="pull-right text-muted">
-        Tags:
-        <span ng-repeat="tag in entry.category" title="{{tag.term}}"> {{tag.label || tag.term}}; </span>
-      </span>
+  <span class="pull-right text-muted">
+    Meta: {{entry.resource.meta | json}};
+  </span>
 
-      <i ng-hide="entry._open" class="fa fa-chevron-down"></i>
-      <i ng-show="entry._open" class="fa fa-chevron-up"></i>
-      <div>
-        <pre ng-show="entry._open">{{ entry.content | json }}</pre>
-      </div>
-    </div>
-  </div>
-  <div class="col-xs-4">
-    <div class="well">
-      <h3>History</h3>
-      <hr/>
-      <ul>
-        <li ng-repeat="(k,v) in history">
-        <b>{{k}}</b> <code>{{v | json}}</code>
-        </li>
-      </ul>
-    </div>
+  <i ng-hide="entry._open" class="fa fa-chevron-down"></i>
+  <i ng-show="entry._open" class="fa fa-chevron-up"></i>
+  <div>
+    <pre ng-show="entry._open">{{ entry.resource | json }}</pre>
   </div>
 </div>
 

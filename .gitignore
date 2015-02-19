@@ -24,3 +24,4 @@ dist
 lib/
 node_modules
 resources/public
+npm-debug.log

@@ -1,7 +1,6 @@
 {
   "description": "Generic FHIR client",
-  "server": "http://localhost:7000/api/app",
-  // "server": "http://fhirplace.health-samurai.io/api/app",
+  "server": "http://hostel.coreos.health-samurai.ru:10001/app",
   "name":"fhirface",
   "image": "fire",
   "title": "fhirface",

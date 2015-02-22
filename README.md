@@ -56,7 +56,7 @@ nvm use 0 \
      OAUTH_CLIENT_SECRET='your-oauth-client-secret' \
      OAUTH_REDIRECT_URI='http://localhost:8080/#/redirect' \
      OAUTH_SCOPE='all' \
-     OAUTH_RESPONSE_TYPE='token'
+     OAUTH_RESPONSE_TYPE='token' \
      OAUTH_AUTHORIZE_URI='http://localhost:3000/oauth/authorize' \
      npm start
 ```

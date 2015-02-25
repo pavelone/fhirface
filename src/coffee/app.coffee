@@ -249,7 +249,7 @@ app.controller 'AuthorizationRedirectCtrl',
     else if oauthConfig.response_type == 'token'
       $location.path('/')
 
-app.controller 'ConformanceCtrl', (menu, $scope, $fhir, $http, $rootScope) ->
+app.controller 'ConformanceCtrl', (menu, $scope, $fhir, $http, $rootScope, $location, $window) ->
   menu.build({}, 'conformance*')
 
   $fhir.conformance success: (data)->
@@ -261,6 +261,13 @@ app.controller 'ConformanceCtrl', (menu, $scope, $fhir, $http, $rootScope) ->
   $http.get(baseUrl().replace(/fhir$/, '') + 'oauth/user?access_token=' + $rootScope.oauth.access_token)
     .success (data) ->
       $scope.user = data
+
+  $scope.revoke = () ->
+    $http.get(baseUrl().replace(/fhir$/, '') + 'oauth/revoke?access_token=' + $rootScope.oauth.access_token)
+      .success (data) ->
+        $rootScope.oauth = {}
+        $location.url($location.path())
+        $window.location.reload();
 
 # FIXME: this controller do not work
 app.controller 'IndexCtrl', (menu, $fhir, $appFhirParams, $appFhirSearch, $scope, $routeParams) ->

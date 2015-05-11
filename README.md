@@ -63,12 +63,6 @@ nvm use 0 \
 
 [Fhirwall]: https://github.com/fhirbase/fhirwall
 
-## Service
-
-> All premium services from developers of Fhirbase projects
-> should be requested from Choice Hospital Systems (http://Choice-HS.com)
-
-
 ## Implementation details
 
 * Written in [coffescript](http://coffeescript.org/)
